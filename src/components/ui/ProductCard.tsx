@@ -150,12 +150,12 @@ const ProductCard = ({
 
         {/* Product Image */}
         <Link to={`/medicine/${slug}`} className="block">
-          <div className="h-28 sm:h-32 md:h-36 flex items-center justify-center pt-6 pb-2">
+          <div className="aspect-square flex items-center justify-center pt-6 pb-2">
             {imageUrl ? (
               <img 
                 src={imageUrl} 
                 alt={name}
-                className="max-h-full max-w-full object-contain"
+                className="max-h-full max-w-full w-auto h-auto object-contain"
               />
             ) : (
               <div className="h-20 w-20 sm:h-24 sm:w-24 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner">
