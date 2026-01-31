@@ -63,12 +63,12 @@ const HeroSection = () => {
     <section className="relative bg-hero-gradient pt-[120px] sm:pt-[135px] md:pt-[150px] lg:pt-[170px] pb-8 sm:pb-12 md:pb-16 lg:pb-20 z-20">
       <div className="container relative px-4">
         <div className="max-w-3xl mx-auto text-center">
-          {/* Headline */}
+          {/* SEO-Optimized Headline */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4 font-heading leading-tight">
-            Search Medicines, Or Molecules.
+            Buy Medicines Online in India
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
-            Save Up To 85% On Super Speciality Medicine
+            <strong className="text-foreground">Save Up To 85%</strong> on Prescription & Super Speciality Medicines
           </p>
 
           {/* Search Bar */}
@@ -86,7 +86,8 @@ const HeroSection = () => {
                 <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search Medicines..."
+                  placeholder="Search medicines, molecules, or brands..."
+                  aria-label="Search medicines online"
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
