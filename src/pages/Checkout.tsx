@@ -16,6 +16,7 @@ import {
   Shield,
   Package,
   Check,
+  Edit,
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,6 +81,7 @@ const Checkout = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [isAddressLoading, setIsAddressLoading] = useState(false);
@@ -232,7 +234,49 @@ const Checkout = () => {
     },
   });
 
-  // Update phone mutation
+  // Update address mutation
+  const updateAddressMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: AddressFormData }) => {
+      if (!user) throw new Error("Not authenticated");
+      
+      // If setting as default, unset other defaults
+      if (data.is_default) {
+        await supabase
+          .from("addresses")
+          .update({ is_default: false })
+          .eq("user_id", user.id);
+      }
+
+      const { data: updatedAddress, error } = await supabase
+        .from("addresses")
+        .update({
+          name: data.name,
+          phone: data.phone,
+          address_line_1: data.address_line_1,
+          address_line_2: data.address_line_2 || null,
+          city: data.city,
+          state: data.state,
+          pincode: data.pincode,
+          landmark: data.landmark || null,
+          is_default: data.is_default || false,
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return updatedAddress;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-addresses-full"] });
+      setEditingAddress(null);
+      toast({ title: "Address updated successfully" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to update address", description: error.message, variant: "destructive" });
+    },
+  });
   const updatePhoneMutation = useMutation({
     mutationFn: async (phone: string) => {
       if (!user) throw new Error("Not authenticated");
@@ -500,14 +544,26 @@ const Checkout = () => {
                 ) : addresses && addresses.length > 0 ? (
                   <div className="grid gap-3">
                     {addresses.map((address) => (
-                      <AddressCard
-                        key={address.id}
-                        address={address}
-                        isSelected={selectedAddressId === address.id}
-                        onSelect={() => setSelectedAddressId(address.id)}
-                        selectable
-                        showActions={false}
-                      />
+                      <div key={address.id} className="relative">
+                        <AddressCard
+                          address={address}
+                          isSelected={selectedAddressId === address.id}
+                          onSelect={() => setSelectedAddressId(address.id)}
+                          selectable
+                          showActions={false}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-3 right-3 h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingAddress(address);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -672,6 +728,31 @@ const Checkout = () => {
             onCancel={() => setShowAddressForm(false)}
             isLoading={isAddressLoading}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Address Dialog */}
+      <Dialog open={!!editingAddress} onOpenChange={(open) => !open && setEditingAddress(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Address</DialogTitle>
+          </DialogHeader>
+          {editingAddress && (
+            <AddressForm
+              initialData={editingAddress}
+              onSubmit={async (data) => {
+                setIsAddressLoading(true);
+                try {
+                  await updateAddressMutation.mutateAsync({ id: editingAddress.id, data });
+                } finally {
+                  setIsAddressLoading(false);
+                }
+              }}
+              onCancel={() => setEditingAddress(null)}
+              isLoading={isAddressLoading}
+              submitLabel="Update Address"
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
