@@ -1,0 +1,13 @@
+project_id = "ruottpiczggjjuzjimvx"
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
+
+[functions.send-notification-email]
+verify_jwt = false
