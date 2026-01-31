@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/ui/ProductCard";
 import ShopFilters from "@/components/shop/ShopFilters";
+import ProductSymbolsGuide from "@/components/ui/ProductSymbolsGuide";
 import { useShopFilters } from "@/hooks/useShopFilters";
 import usePagination from "@/hooks/usePagination";
 
@@ -23,6 +24,16 @@ const ITEMS_PER_PAGE = 12;
 
 const ShopPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showSymbolsGuide, setShowSymbolsGuide] = useState(false);
+  
+  // Trigger symbols guide on shop page load
+  useEffect(() => {
+    // Small delay to let page render first
+    const timer = setTimeout(() => {
+      setShowSymbolsGuide(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
   
   const {
     isLoading,
@@ -358,6 +369,7 @@ const ShopPage = () => {
         </div>
       </main>
       <Footer />
+      <ProductSymbolsGuide trigger={showSymbolsGuide} />
     </div>
   );
 };

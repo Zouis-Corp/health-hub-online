@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,15 +24,18 @@ interface DatabaseProductCarouselProps {
   subtitle: string;
   filter?: "prescription" | "otc" | "all";
   limit?: number;
+  onVisible?: () => void;
 }
 
 const DatabaseProductCarousel = ({ 
   title, 
   subtitle, 
   filter = "all",
-  limit = 10 
+  limit = 10,
+  onVisible
 }: DatabaseProductCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const { data: medicines, isLoading } = useQuery({
     queryKey: ["home-medicines", filter, limit],
@@ -53,6 +56,26 @@ const DatabaseProductCarousel = ({
       return data as Medicine[];
     },
   });
+
+  // Intersection Observer to trigger callback when section becomes visible
+  useEffect(() => {
+    if (!onVisible || !sectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            onVisible();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [onVisible]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -110,7 +133,7 @@ const DatabaseProductCarousel = ({
   }
 
   return (
-    <section className="py-5 sm:py-8 md:py-10 bg-background">
+    <section ref={sectionRef} className="py-5 sm:py-8 md:py-10 bg-background">
       <div className="container px-3 sm:px-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3 sm:mb-6">
