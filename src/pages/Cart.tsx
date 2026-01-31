@@ -349,63 +349,14 @@ const Cart = () => {
       return;
     }
 
-    // Direct checkout for non-prescription items
-    if (!selectedAddressId) {
-      toast({ 
-        title: "Please select a delivery address", 
-        description: "Add an address from your dashboard first.",
-        variant: "destructive" 
-      });
-      return;
-    }
-
-    setIsCheckoutLoading(true);
-
-    try {
-      // Create order with "approved" status (no prescription needed)
-      const { data: orderData, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          status: "approved",
-          total_amount: total,
-          payment_status: "pending",
-          address_id: selectedAddressId,
-          coupon_id: appliedCoupon?.id || null,
-          discount_amount: couponDiscount,
-          delivery_fee: deliveryFee,
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = items.map((item) => ({
-        order_id: orderData.id,
-        medicine_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Initiate Razorpay payment
-      await initiateRazorpayPayment(orderData.id, total);
-
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      toast({ 
-        title: "Checkout failed", 
-        description: error.message,
-        variant: "destructive" 
-      });
-      setIsCheckoutLoading(false);
-    }
+    // Navigate to checkout page for non-prescription items
+    navigate("/checkout", {
+      state: {
+        couponId: appliedCoupon?.id,
+        coupon: appliedCoupon,
+        couponDiscount,
+      },
+    });
   };
 
   return (

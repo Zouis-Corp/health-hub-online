@@ -14,6 +14,7 @@ import Conditions from "./pages/Conditions";
 import MedicineDetail from "./pages/MedicineDetail";
 import UploadPrescription from "./pages/UploadPrescription";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -88,6 +89,11 @@ const App = () => (
                   </ProtectedRoute>
                 } />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                } />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
