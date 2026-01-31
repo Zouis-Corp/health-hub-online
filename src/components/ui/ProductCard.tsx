@@ -149,13 +149,13 @@ const ProductCard = ({
         </button>
 
         {/* Product Image */}
-        <Link to={`/medicine/${slug}`} className="block">
-          <div className="aspect-square flex items-center justify-center pt-6 pb-2">
+        <Link to={`/medicine/${slug}`} className="block h-full">
+          <div className="aspect-[4/3] flex items-center justify-center overflow-hidden">
             {imageUrl ? (
               <img 
                 src={imageUrl} 
                 alt={name}
-                className="max-h-full max-w-full w-auto h-auto object-contain"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="h-20 w-20 sm:h-24 sm:w-24 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner">
