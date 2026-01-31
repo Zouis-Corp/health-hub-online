@@ -613,7 +613,7 @@ const Header = () => {
 
       {/* Mobile Search Overlay */}
       {showMobileSearch && (
-        <div className="fixed inset-0 bg-card z-50 lg:hidden">
+        <div className="fixed inset-0 top-[40px] bg-card z-50 lg:hidden">
           <div className="p-4 border-b border-border flex items-center gap-3">
             <button 
               onClick={() => { setShowMobileSearch(false); setSearchQuery(""); setSearchResults([]); }}
@@ -634,7 +634,7 @@ const Header = () => {
             </div>
           </div>
           
-          <div className="p-4 overflow-y-auto h-[calc(100vh-72px)]">
+          <div className="p-4 overflow-y-auto h-[calc(100vh-112px)]">
             {searchQuery.length < 2 ? (
               <p className="text-center text-muted-foreground text-sm py-8">
                 Type at least 2 characters to search
