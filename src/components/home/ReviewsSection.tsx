@@ -205,9 +205,12 @@ const ReviewsSection = () => {
         {/* Review Cards Carousel */}
         <div
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory"
+          className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
           style={{ scrollBehavior: 'smooth' }}
         >
+          {/* Left spacer for proper edge padding */}
+          <div className="flex-shrink-0 w-3 sm:w-4 md:w-0" />
+          
           {/* Inline Review Form as first card */}
           <div className="snap-start">
             <InlineReviewForm />
