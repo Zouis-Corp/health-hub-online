@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import papIcon from "@/assets/pap.svg";
 import rxUploadIcon from "@/assets/rx_upload.svg";
@@ -8,11 +7,10 @@ import discountIcon from "@/assets/discount.svg";
 const actions = [
   {
     id: 1,
-    title: "Patient Assistance Program",
+    title: "Patient Assistance Support",
     icon: papIcon,
     bgColor: "bg-red-50",
     textColor: "text-red-600",
-    link: "/patient-assistance",
   },
   {
     id: 2,
@@ -20,23 +18,20 @@ const actions = [
     icon: rxUploadIcon,
     bgColor: "bg-slate-100",
     textColor: "text-slate-700",
-    link: "/upload-prescription",
   },
   {
     id: 3,
-    title: "Why People Love Us?",
+    title: "People love us More",
     icon: whyUsIcon,
     bgColor: "bg-green-50",
     textColor: "text-slate-700",
-    link: "#why-us",
   },
   {
     id: 4,
-    title: "How We Give 85% Discount?",
+    title: "We Give Upto 85% Discount",
     icon: discountIcon,
     bgColor: "bg-red-50",
     textColor: "text-red-600",
-    link: "#discount",
   },
 ];
 
@@ -46,10 +41,9 @@ const QuickActions = () => {
       <div className="container">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {actions.map((action) => (
-            <Link
+            <div
               key={action.id}
-              to={action.link}
-              className={`group flex items-center gap-2 sm:gap-3 p-3 sm:p-4 ${action.bgColor} rounded-2xl border border-transparent hover:border-border transition-all hover:shadow-card`}
+              className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 ${action.bgColor} rounded-2xl border border-transparent`}
             >
               {/* Icon */}
               <div className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center flex-shrink-0">
@@ -58,14 +52,14 @@ const QuickActions = () => {
               
               {/* Arrow Circle - hidden on mobile */}
               <div className="hidden sm:flex w-8 h-8 bg-white rounded-full items-center justify-center shadow-sm flex-shrink-0">
-                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
               
               {/* Title */}
               <p className={`text-xs sm:text-sm font-semibold ${action.textColor} leading-tight`}>
                 {action.title}
               </p>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
