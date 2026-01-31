@@ -64,6 +64,7 @@ const getTimeAgo = (dateString: string) => {
 const ReviewsSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
+  const isUserInteracting = useRef(false);
 
   // Fetch approved reviews from database
   const { data: dbReviews } = useQuery({
@@ -84,51 +85,91 @@ const ReviewsSection = () => {
   // Use database reviews if available, otherwise use fallback
   const reviews = dbReviews && dbReviews.length > 0 ? dbReviews : fallbackReviews;
 
-  const scroll = useCallback((direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 320;
-      const container = scrollRef.current;
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      
-      if (direction === "right" && container.scrollLeft >= maxScroll - 10) {
-        container.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        container.scrollBy({
-          left: direction === "left" ? -scrollAmount : scrollAmount,
-          behavior: "smooth",
-        });
-      }
-    }
+  // Get card width based on screen size
+  const getCardWidth = useCallback(() => {
+    if (typeof window === 'undefined') return 280;
+    if (window.innerWidth < 640) return 280; // Mobile: w-[280px]
+    if (window.innerWidth < 768) return 300; // sm: w-[300px]
+    if (window.innerWidth < 1024) return 320; // md: w-[320px]
+    return 340; // lg: w-[340px]
   }, []);
 
+  const scroll = useCallback((direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const container = scrollRef.current;
+      const cardWidth = getCardWidth();
+      const gap = window.innerWidth >= 768 ? 20 : 16; // gap-4 = 16px, gap-5 = 20px
+      const scrollUnit = cardWidth + gap;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      
+      if (direction === "right") {
+        if (container.scrollLeft >= maxScroll - 10) {
+          // Reset to beginning smoothly
+          container.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          // Calculate next snap position
+          const currentPosition = container.scrollLeft;
+          const nextPosition = Math.ceil(currentPosition / scrollUnit) * scrollUnit + scrollUnit;
+          container.scrollTo({ left: Math.min(nextPosition, maxScroll), behavior: "smooth" });
+        }
+      } else {
+        const currentPosition = container.scrollLeft;
+        const prevPosition = Math.floor(currentPosition / scrollUnit) * scrollUnit - scrollUnit;
+        container.scrollTo({ left: Math.max(prevPosition, 0), behavior: "smooth" });
+      }
+    }
+  }, [getCardWidth]);
+
+  // Auto-scroll effect
   useEffect(() => {
     const startAutoScroll = () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+      }
       autoScrollRef.current = setInterval(() => {
-        scroll("right");
+        if (!isUserInteracting.current) {
+          scroll("right");
+        }
       }, 4000);
     };
 
     startAutoScroll();
 
     const container = scrollRef.current;
-    const handleMouseEnter = () => {
+    
+    const handleInteractionStart = () => {
+      isUserInteracting.current = true;
       if (autoScrollRef.current) {
         clearInterval(autoScrollRef.current);
       }
     };
-    const handleMouseLeave = () => {
-      startAutoScroll();
+    
+    const handleInteractionEnd = () => {
+      isUserInteracting.current = false;
+      // Restart auto-scroll after user stops interacting
+      setTimeout(() => {
+        if (!isUserInteracting.current) {
+          startAutoScroll();
+        }
+      }, 2000);
     };
 
-    container?.addEventListener("mouseenter", handleMouseEnter);
-    container?.addEventListener("mouseleave", handleMouseLeave);
+    // Mouse events
+    container?.addEventListener("mouseenter", handleInteractionStart);
+    container?.addEventListener("mouseleave", handleInteractionEnd);
+    
+    // Touch events for mobile
+    container?.addEventListener("touchstart", handleInteractionStart, { passive: true });
+    container?.addEventListener("touchend", handleInteractionEnd, { passive: true });
 
     return () => {
       if (autoScrollRef.current) {
         clearInterval(autoScrollRef.current);
       }
-      container?.removeEventListener("mouseenter", handleMouseEnter);
-      container?.removeEventListener("mouseleave", handleMouseLeave);
+      container?.removeEventListener("mouseenter", handleInteractionStart);
+      container?.removeEventListener("mouseleave", handleInteractionEnd);
+      container?.removeEventListener("touchstart", handleInteractionStart);
+      container?.removeEventListener("touchend", handleInteractionEnd);
     };
   }, [scroll]);
 
@@ -164,15 +205,18 @@ const ReviewsSection = () => {
         {/* Review Cards Carousel */}
         <div
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4"
+          className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 snap-x snap-mandatory"
+          style={{ scrollBehavior: 'smooth' }}
         >
           {/* Inline Review Form as first card */}
-          <InlineReviewForm />
+          <div className="snap-start">
+            <InlineReviewForm />
+          </div>
           
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="flex-shrink-0 w-[260px] sm:w-[280px] md:w-[300px] lg:w-[320px]"
+              className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] lg:w-[340px] snap-start"
             >
               <div className="bg-card border border-border rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                 {/* Header with Avatar and Google Icon */}
