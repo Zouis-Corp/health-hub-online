@@ -641,13 +641,6 @@ const UploadPrescription = () => {
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
               <div className="space-y-2 sm:space-y-3">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 bg-accent rounded-xl flex items-center justify-center mx-auto">
                   <Upload className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
@@ -657,14 +650,26 @@ const UploadPrescription = () => {
                     Drag & drop your prescription here
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground">
-                    or click to browse files
+                    or use the buttons below
                   </p>
                 </div>
-                <div className="flex justify-center gap-2 sm:gap-3">
-                  <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3">
-                    <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    Browse Images
-                  </Button>
+                <div className="flex justify-center gap-2 sm:gap-3 relative z-10">
+                  {/* Browse Images Button with hidden file input */}
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors">
+                      <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      Browse Images
+                    </div>
+                  </label>
+                  
+                  {/* Take Photo Button - opens camera */}
                   <Button 
                     variant="outline" 
                     size="sm" 
