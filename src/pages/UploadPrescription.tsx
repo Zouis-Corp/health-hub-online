@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/Header";
@@ -45,6 +45,13 @@ const UploadPrescription = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  
+  // Camera state
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
   // Address state
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -154,6 +161,111 @@ const UploadPrescription = () => {
     setFiles(files.filter((_, i) => i !== index));
     setFilePreviews(filePreviews.filter((_, i) => i !== index));
   };
+
+  // Camera functions
+  const openCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" } // Use back camera for prescription
+      });
+      setCameraStream(stream);
+      setShowCamera(true);
+      setCapturedImage(null);
+    } catch (error: any) {
+      if (error.name === "NotAllowedError") {
+        toast({
+          title: "Camera access denied",
+          description: "Please allow camera access in your browser settings.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Camera error",
+          description: "Unable to access camera. Please try uploading an image instead.",
+          variant: "destructive",
+        });
+      }
+      console.error("Camera error:", error);
+    }
+  }, [toast]);
+
+  const closeCamera = useCallback(() => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setShowCamera(false);
+    setCapturedImage(null);
+  }, [cameraStream]);
+
+  const capturePhoto = useCallback(() => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        setCapturedImage(imageDataUrl);
+        // Stop the stream after capturing
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+          setCameraStream(null);
+        }
+      }
+    }
+  }, [cameraStream]);
+
+  const retakePhoto = useCallback(() => {
+    setCapturedImage(null);
+    openCamera();
+  }, [openCamera]);
+
+  const confirmPhoto = useCallback(async () => {
+    if (!capturedImage) return;
+    
+    // Convert base64 to File
+    const response = await fetch(capturedImage);
+    const blob = await response.blob();
+    const file = new File([blob], `prescription_${Date.now()}.jpg`, { type: "image/jpeg" });
+    
+    // Validate file size
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Photo too large",
+        description: "The captured photo exceeds 2MB limit. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setFiles(prev => [...prev, file]);
+    setFilePreviews(prev => [...prev, capturedImage]);
+    closeCamera();
+    
+    toast({
+      title: "Photo added",
+      description: "Your prescription photo has been added.",
+    });
+  }, [capturedImage, closeCamera, toast]);
+
+  // Set video stream when camera opens
+  useEffect(() => {
+    if (videoRef.current && cameraStream) {
+      videoRef.current.srcObject = cameraStream;
+    }
+  }, [cameraStream]);
+
+  // Cleanup camera stream on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   const handleAddAddress = async (data: AddressFormData) => {
     if (!user) return;
@@ -400,6 +512,80 @@ const UploadPrescription = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      
+      {/* Camera Overlay */}
+      {showCamera && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col">
+          {/* Hidden canvas for capturing */}
+          <canvas ref={canvasRef} className="hidden" />
+          
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 bg-black/80">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={closeCamera}
+              className="text-white hover:bg-white/20"
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <span className="text-white font-medium">Take Photo</span>
+            <div className="w-10" />
+          </div>
+          
+          {/* Camera View or Captured Image */}
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            {capturedImage ? (
+              <img 
+                src={capturedImage} 
+                alt="Captured prescription" 
+                className="max-w-full max-h-full object-contain"
+              />
+            ) : (
+              <video 
+                ref={videoRef}
+                autoPlay 
+                playsInline
+                muted
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
+          </div>
+          
+          {/* Camera Controls */}
+          <div className="p-6 bg-black/80">
+            {capturedImage ? (
+              <div className="flex justify-center gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={retakePhoto}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <Camera className="h-5 w-5 mr-2" />
+                  Retake
+                </Button>
+                <Button 
+                  onClick={confirmPhoto}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  Use Photo
+                </Button>
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <button
+                  onClick={capturePhoto}
+                  className="w-16 h-16 rounded-full border-4 border-white bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
+                >
+                  <div className="w-12 h-12 rounded-full bg-white" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
       <main className="pt-[120px] sm:pt-[130px] pb-20 sm:pb-6">
         <div className="container px-3 sm:px-4 max-w-3xl">
           {/* Breadcrumb */}
@@ -479,7 +665,17 @@ const UploadPrescription = () => {
                     <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Browse Images
                   </Button>
-                  <Button variant="outline" size="sm" className="gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openCamera();
+                    }}
+                    type="button"
+                  >
                     <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Take Photo
                   </Button>
