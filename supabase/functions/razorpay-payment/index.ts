@@ -21,7 +21,13 @@ interface VerifyPaymentRequest {
   razorpaySignature: string;
 }
 
-type RequestBody = CreateOrderRequest | VerifyPaymentRequest;
+interface PaymentFailedRequest {
+  action: 'payment-failed';
+  orderId: string;
+  errorMessage?: string;
+}
+
+type RequestBody = CreateOrderRequest | VerifyPaymentRequest | PaymentFailedRequest;
 
 serve(async (req: Request) => {
   // Handle CORS preflight
@@ -198,6 +204,60 @@ serve(async (req: Request) => {
 
       return new Response(
         JSON.stringify({ success: true, message: 'Payment verified successfully' }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+
+    } else if (body.action === 'payment-failed') {
+      // Handle payment failure
+      const { orderId, errorMessage } = body;
+
+      if (!orderId) {
+        throw new Error('Missing required field: orderId');
+      }
+
+      console.log(`[razorpay-payment] Payment failed for order: ${orderId}, reason: ${errorMessage}`);
+
+      // Get order user_id for email
+      const { data: order } = await supabase
+        .from('orders')
+        .select('user_id')
+        .eq('id', orderId)
+        .single();
+
+      // Update order payment status to failed
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          payment_status: 'failed',
+          notes: `Payment failed: ${errorMessage || 'Unknown error'}`,
+        })
+        .eq('id', orderId);
+
+      if (updateError) {
+        console.error('[razorpay-payment] Failed to update order:', updateError);
+      }
+
+      // Send payment failed email
+      if (order) {
+        try {
+          await supabase.functions.invoke('send-notification-email', {
+            body: {
+              type: 'payment-failed',
+              userId: order.user_id,
+              orderId: orderId,
+            },
+          });
+          console.log('[razorpay-payment] Payment failed email sent');
+        } catch (emailError) {
+          console.error('[razorpay-payment] Failed to send email:', emailError);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Payment failure recorded' }),
         { 
           status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
