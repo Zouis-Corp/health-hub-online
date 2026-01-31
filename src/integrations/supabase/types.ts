@@ -14,266 +14,67 @@ export type Database = {
   }
   public: {
     Tables: {
-      addresses: {
+      cart_items: {
         Row: {
-          address_line_1: string
-          address_line_2: string | null
-          city: string
-          created_at: string | null
+          created_at: string
           id: string
-          is_default: boolean | null
-          landmark: string | null
-          name: string
-          phone: string
-          pincode: string
-          state: string
-          updated_at: string | null
+          product_id: string
+          quantity: number
           user_id: string
         }
         Insert: {
-          address_line_1: string
-          address_line_2?: string | null
-          city: string
-          created_at?: string | null
+          created_at?: string
           id?: string
-          is_default?: boolean | null
-          landmark?: string | null
-          name: string
-          phone: string
-          pincode: string
-          state: string
-          updated_at?: string | null
+          product_id: string
+          quantity?: number
           user_id: string
         }
         Update: {
-          address_line_1?: string
-          address_line_2?: string | null
-          city?: string
-          created_at?: string | null
+          created_at?: string
           id?: string
-          is_default?: boolean | null
-          landmark?: string | null
-          name?: string
-          phone?: string
-          pincode?: string
-          state?: string
-          updated_at?: string | null
+          product_id?: string
+          quantity?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      conditions: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          icon: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          slug: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          slug: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          slug?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      coupons: {
-        Row: {
-          code: string
-          created_at: string | null
-          description: string | null
-          discount_type: Database["public"]["Enums"]["discount_type"]
-          discount_value: number | null
-          end_date: string | null
-          id: string
-          is_active: boolean | null
-          maximum_discount: number | null
-          minimum_order_value: number | null
-          start_date: string | null
-          times_used: number | null
-          updated_at: string | null
-          usage_limit: number | null
-        }
-        Insert: {
-          code: string
-          created_at?: string | null
-          description?: string | null
-          discount_type?: Database["public"]["Enums"]["discount_type"]
-          discount_value?: number | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          maximum_discount?: number | null
-          minimum_order_value?: number | null
-          start_date?: string | null
-          times_used?: number | null
-          updated_at?: string | null
-          usage_limit?: number | null
-        }
-        Update: {
-          code?: string
-          created_at?: string | null
-          description?: string | null
-          discount_type?: Database["public"]["Enums"]["discount_type"]
-          discount_value?: number | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          maximum_discount?: number | null
-          minimum_order_value?: number | null
-          start_date?: string | null
-          times_used?: number | null
-          updated_at?: string | null
-          usage_limit?: number | null
-        }
-        Relationships: []
-      }
-      delivery_fees: {
-        Row: {
-          created_at: string | null
-          delivery_fee: number
-          free_delivery_minimum: number | null
-          id: string
-          is_active: boolean | null
-          state_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          delivery_fee?: number
-          free_delivery_minimum?: number | null
-          id?: string
-          is_active?: boolean | null
-          state_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          delivery_fee?: number
-          free_delivery_minimum?: number | null
-          id?: string
-          is_active?: boolean | null
-          state_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      medicines: {
-        Row: {
-          brand: string | null
-          condition_id: string | null
-          created_at: string | null
-          description: string | null
-          dosage: string | null
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          name: string
-          original_price: number | null
-          prescription_required: boolean | null
-          price: number
-          salt_name: string | null
-          slug: string
-          stock: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          brand?: string | null
-          condition_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          dosage?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          name: string
-          original_price?: number | null
-          prescription_required?: boolean | null
-          price: number
-          salt_name?: string | null
-          slug: string
-          stock?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          brand?: string | null
-          condition_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          dosage?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          name?: string
-          original_price?: number | null
-          prescription_required?: boolean | null
-          price?: number
-          salt_name?: string | null
-          slug?: string
-          stock?: number | null
-          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "medicines_condition_id_fkey"
-            columns: ["condition_id"]
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "conditions"
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
       }
       order_items: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          medicine_id: string | null
           order_id: string
           price: number
+          product_id: string
+          product_name: string
           quantity: number
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          medicine_id?: string | null
           order_id: string
           price: number
-          quantity?: number
+          product_id: string
+          product_name: string
+          quantity: number
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          medicine_id?: string | null
           order_id?: string
           price?: number
+          product_id?: string
+          product_name?: string
           quantity?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "order_items_medicine_id_fkey"
-            columns: ["medicine_id"]
-            isOneToOne: false
-            referencedRelation: "medicines"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
@@ -281,133 +82,86 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       orders: {
         Row: {
-          address_id: string | null
-          coupon_id: string | null
-          created_at: string | null
-          delivery_fee: number | null
-          discount_amount: number | null
-          id: string
-          notes: string | null
-          order_number: number | null
-          payment_status: Database["public"]["Enums"]["payment_status"] | null
-          rejection_reason: string | null
-          status: Database["public"]["Enums"]["order_status"] | null
-          total_amount: number
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          address_id?: string | null
-          coupon_id?: string | null
-          created_at?: string | null
-          delivery_fee?: number | null
-          discount_amount?: number | null
-          id?: string
-          notes?: string | null
-          order_number?: number | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount?: number
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          address_id?: string | null
-          coupon_id?: string | null
-          created_at?: string | null
-          delivery_fee?: number | null
-          discount_amount?: number | null
-          id?: string
-          notes?: string | null
-          order_number?: number | null
-          payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["order_status"] | null
-          total_amount?: number
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_address_id_fkey"
-            columns: ["address_id"]
-            isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_coupon_id_fkey"
-            columns: ["coupon_id"]
-            isOneToOne: false
-            referencedRelation: "coupons"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      otp_verifications: {
-        Row: {
           created_at: string
-          email: string
-          expires_at: string
           id: string
-          is_used: boolean
-          otp_code: string
+          payment_method: string | null
+          payment_status: string | null
+          shipping_address: string | null
+          shipping_city: string | null
+          shipping_pincode: string | null
+          shipping_state: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          email: string
-          expires_at: string
           id?: string
-          is_used?: boolean
-          otp_code: string
+          payment_method?: string | null
+          payment_status?: string | null
+          shipping_address?: string | null
+          shipping_city?: string | null
+          shipping_pincode?: string | null
+          shipping_state?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
-          email?: string
-          expires_at?: string
           id?: string
-          is_used?: boolean
-          otp_code?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          shipping_address?: string | null
+          shipping_city?: string | null
+          shipping_pincode?: string | null
+          shipping_state?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
       prescriptions: {
         Row: {
-          approved_by: string | null
-          created_at: string | null
+          created_at: string
           file_url: string
           id: string
           notes: string | null
           order_id: string | null
-          status: Database["public"]["Enums"]["prescription_status"] | null
-          updated_at: string | null
+          status: string | null
           user_id: string
         }
         Insert: {
-          approved_by?: string | null
-          created_at?: string | null
+          created_at?: string
           file_url: string
           id?: string
           notes?: string | null
           order_id?: string | null
-          status?: Database["public"]["Enums"]["prescription_status"] | null
-          updated_at?: string | null
+          status?: string | null
           user_id: string
         }
         Update: {
-          approved_by?: string | null
-          created_at?: string | null
+          created_at?: string
           file_url?: string
           id?: string
           notes?: string | null
           order_id?: string | null
-          status?: Database["public"]["Enums"]["prescription_status"] | null
-          updated_at?: string | null
+          status?: string | null
           user_id?: string
         }
         Relationships: [
@@ -420,87 +174,125 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      products: {
         Row: {
-          created_at: string | null
-          email: string | null
-          email_verified: boolean
+          category: string | null
+          created_at: string
+          description: string | null
+          discount_percentage: number | null
+          generic_name: string | null
           id: string
-          is_blocked: boolean | null
-          name: string | null
-          phone: string | null
-          updated_at: string | null
+          image_url: string | null
+          in_stock: boolean | null
+          manufacturer: string | null
+          name: string
+          original_price: number | null
+          price: number
+          requires_prescription: boolean | null
+          stock_quantity: number | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          email?: string | null
-          email_verified?: boolean
-          id: string
-          is_blocked?: boolean | null
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number | null
+          generic_name?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          manufacturer?: string | null
+          name: string
+          original_price?: number | null
+          price: number
+          requires_prescription?: boolean | null
+          stock_quantity?: number | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          email?: string | null
-          email_verified?: boolean
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number | null
+          generic_name?: string | null
           id?: string
-          is_blocked?: boolean | null
-          name?: string | null
-          phone?: string | null
-          updated_at?: string | null
+          image_url?: string | null
+          in_stock?: boolean | null
+          manufacturer?: string | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          requires_prescription?: boolean | null
+          stock_quantity?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
-      user_roles: {
+      profiles: {
         Row: {
-          created_at: string | null
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          product_id: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          product_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_otps: { Args: never; Returns: undefined }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "pharmacist" | "user"
-      discount_type: "percentage" | "flat" | "free_delivery"
-      order_status:
-        | "pending_rx"
-        | "approved"
-        | "rejected"
-        | "processing"
-        | "shipped"
-        | "delivered"
-      payment_status: "pending" | "paid" | "failed" | "refunded"
-      prescription_status: "pending" | "approved" | "rejected"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -627,19 +419,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "pharmacist", "user"],
-      discount_type: ["percentage", "flat", "free_delivery"],
-      order_status: [
-        "pending_rx",
-        "approved",
-        "rejected",
-        "processing",
-        "shipped",
-        "delivered",
-      ],
-      payment_status: ["pending", "paid", "failed", "refunded"],
-      prescription_status: ["pending", "approved", "rejected"],
-    },
+    Enums: {},
   },
 } as const
