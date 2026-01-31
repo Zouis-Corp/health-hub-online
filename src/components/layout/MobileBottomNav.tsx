@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Upload, ShoppingCart, User } from "lucide-react";
+import { Home, Store, Upload, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -10,9 +10,9 @@ const navItems = [
     icon: Home 
   },
   { 
-    name: "Search", 
-    path: "/conditions", 
-    icon: Search 
+    name: "Shop", 
+    path: "/shop", 
+    icon: Store 
   },
   { 
     name: "Upload Rx", 

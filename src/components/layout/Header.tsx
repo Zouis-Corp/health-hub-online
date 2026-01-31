@@ -384,27 +384,27 @@ const Header = () => {
                 </div>
               </Link>
 
-              {/* User Account */}
+              {/* User Account - Desktop only */}
               <div 
-                className="relative"
+                className="relative hidden sm:block"
                 onMouseEnter={() => setShowUserDropdown(true)}
                 onMouseLeave={() => setShowUserDropdown(false)}
               >
                 {user ? (
                   <button className="flex items-center gap-1.5 p-1.5 rounded-full hover:bg-muted transition-colors">
                     {/* Colorful 3D-style profile icon */}
-                    <div className="w-8 h-8 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-md">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-md">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-sm">
                         <circle cx="12" cy="8" r="4" fill="currentColor"/>
                         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor" opacity="0.9"/>
                       </svg>
                     </div>
-                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
                 ) : (
                   <Link to="/auth">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-slate-200 via-gray-200 to-slate-300 flex items-center justify-center hover:from-slate-300 hover:to-gray-400 transition-all cursor-pointer shadow-sm">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-slate-600 sm:w-5 sm:h-5">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-200 via-gray-200 to-slate-300 flex items-center justify-center hover:from-slate-300 hover:to-gray-400 transition-all cursor-pointer shadow-sm">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-slate-600">
                         <circle cx="12" cy="8" r="4" fill="currentColor"/>
                         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor" opacity="0.8"/>
                       </svg>
