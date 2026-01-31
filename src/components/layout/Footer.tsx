@@ -160,11 +160,11 @@ const Footer = () => {
               © 2026 TabletKart Technologies Pvt Ltd.
             </p>
             <div className="flex items-center gap-2 flex-wrap justify-center">
-              {/* American Express */}
-              <div className="h-8 w-12 rounded-md overflow-hidden shadow-sm">
-                <svg viewBox="0 0 750 471" className="h-full w-full">
-                  <rect fill="#016FD0" width="750" height="471" rx="20"/>
-                  <path d="M632.24 227.91V208.7h-51.24v68.15h51.24v-19.21h-29.23v-8.31h28.52v-17.77h-28.52v-3.65h29.23zm-80.44 48.94h-26.24l-21.13-33.55v33.55H474v-68.15h26.77l20.99 33.29v-33.29h30.44v68.15zm-109.59 0h-57.46v-68.15h57.46v19.21h-34.42v6.81h33.55v17.77h-33.55v5.15h34.42v19.21zm-77.89 0h-25.02l-17.22-24.15-17.48 24.15h-24.76l29.43-35.86-28.57-32.29h25.43l16.68 23.08 16.53-23.08h24.36l-28.21 33.48 29.03 34.67h-.2zM309.4 247.12h-22.47v29.73h-22.73v-68.15h51.24c18.41 0 28.27 10.38 28.27 25.09 0 10.98-6.01 19.54-17.61 22.73l20.99 20.32h-26.77l-11.02-29.72h.1zm5.85-17.14c0-5.71-3.4-8.75-10.92-8.75h-17.4v17.77h17.4c7.52 0 10.92-3.31 10.92-9.02zm-164.31-21.28l-36.8 68.15h24.13l6.14-12.26h37.39l6.21 12.26h24.89l-36.99-68.15h-25.02.05zm4.91 40.1l10.49-20.65 10.52 20.65h-21.01z" fill="#FFF"/>
+              {/* Visa */}
+              <div className="h-8 w-12 bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
+                <svg viewBox="0 0 750 471" className="h-5 w-10">
+                  <path d="M278.2 334.2l33.4-186h53.4l-33.4 186zm146.6-181.3c-10.5-4-27-8.4-47.6-8.4-52.4 0-89.4 26.3-89.7 64-0.3 27.9 26.4 43.4 46.5 52.7 20.7 9.5 27.6 15.6 27.5 24.1-0.1 13-16.5 18.9-31.7 18.9-21.2 0-32.5-2.9-49.9-10.2l-6.8-3.1-7.4 43c12.4 5.4 35.3 10.1 59.1 10.3 55.8 0 92-26 92.4-66.2 0.2-22.1-13.9-38.9-44.6-52.7-18.6-9-30-15-29.9-24.1 0-8.1 9.6-16.8 30.5-16.8 17.4-0.3 30 3.5 39.8 7.5l4.8 2.3 7.2-41.3m131.8-4.7h-41c-12.7 0-22.2 3.5-27.8 16.2l-78.8 177.5h55.7s9.1-23.9 11.2-29.1h68.1c1.6 6.8 6.5 29.1 6.5 29.1h49.2l-42.9-193.7zm-65.5 125c4.4-11.2 21.2-54.3 21.2-54.3-0.3 0.5 4.4-11.3 7.1-18.6l3.6 16.8s10.2 46.3 12.3 56.1h-44.2zm-262.9-125l-52 132.4-5.5-27c-9.6-30.8-39.6-64.2-73.2-80.9l47.5 169.4h56.1l83.4-193.9h-56.3" fill="#1A1F71"/>
+                  <path d="M131.9 148h-85.5l-0.6 3.6c66.5 16 110.5 54.7 128.8 101.2l-18.6-89.1c-3.2-12.2-12.5-15.4-24.1-15.7" fill="#F9A533"/>
                 </svg>
               </div>
               {/* Mastercard */}
@@ -176,20 +176,20 @@ const Footer = () => {
                   <path d="M76 22.5a35 35 0 000 55 35 35 0 000-55z" fill="#FF5F00"/>
                 </svg>
               </div>
-              {/* Visa */}
-              <div className="h-8 w-12 bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
-                <svg viewBox="0 0 750 471" className="h-5 w-10">
-                  <path d="M278.2 334.2l33.4-186h53.4l-33.4 186zm146.6-181.3c-10.5-4-27-8.4-47.6-8.4-52.4 0-89.4 26.3-89.7 64-0.3 27.9 26.4 43.4 46.5 52.7 20.7 9.5 27.6 15.6 27.5 24.1-0.1 13-16.5 18.9-31.7 18.9-21.2 0-32.5-2.9-49.9-10.2l-6.8-3.1-7.4 43c12.4 5.4 35.3 10.1 59.1 10.3 55.8 0 92-26 92.4-66.2 0.2-22.1-13.9-38.9-44.6-52.7-18.6-9-30-15-29.9-24.1 0-8.1 9.6-16.8 30.5-16.8 17.4-0.3 30 3.5 39.8 7.5l4.8 2.3 7.2-41.3m131.8-4.7h-41c-12.7 0-22.2 3.5-27.8 16.2l-78.8 177.5h55.7s9.1-23.9 11.2-29.1h68.1c1.6 6.8 6.5 29.1 6.5 29.1h49.2l-42.9-193.7zm-65.5 125c4.4-11.2 21.2-54.3 21.2-54.3-0.3 0.5 4.4-11.3 7.1-18.6l3.6 16.8s10.2 46.3 12.3 56.1h-44.2zm-262.9-125l-52 132.4-5.5-27c-9.6-30.8-39.6-64.2-73.2-80.9l47.5 169.4h56.1l83.4-193.9h-56.3" fill="#1A1F71"/>
-                  <path d="M131.9 148h-85.5l-0.6 3.6c66.5 16 110.5 54.7 128.8 101.2l-18.6-89.1c-3.2-12.2-12.5-15.4-24.1-15.7" fill="#F9A533"/>
-                </svg>
-              </div>
               {/* RuPay */}
               <div className="h-8 w-12 bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
-                <svg viewBox="0 0 100 60" className="h-5 w-9">
-                  <rect fill="#FFF" width="100" height="60"/>
-                  <path d="M10 15h18c8 0 12 4 12 12s-4 12-12 12h-10v12h-8V15zm8 17h9c3 0 5-2 5-5s-2-5-5-5h-9v10z" fill="#097A44"/>
-                  <text x="45" y="38" fontSize="16" fontWeight="bold" fill="#F37021">u</text>
-                  <path d="M62 15h18c8 0 12 4 12 12 0 6-3 10-8 11l10 13h-10l-9-12h-5v12h-8V15zm8 17h9c3 0 5-2 5-5s-2-5-5-5h-9v10z" fill="#097A44"/>
+                <svg viewBox="0 0 100 40" className="h-4 w-10">
+                  <path d="M5 8h12c5 0 8 3 8 8s-3 8-8 8h-6v8h-6V8zm6 11h5c2 0 3-1 3-3s-1-3-3-3h-5v6z" fill="#097A44"/>
+                  <text x="30" y="26" fontSize="14" fontWeight="bold" fill="#F37021">u</text>
+                  <path d="M45 8h12c5 0 8 3 8 8 0 4-2 7-6 8l7 8h-8l-6-8h-3v8h-6V8zm6 11h5c2 0 3-1 3-3s-1-3-3-3h-5v6z" fill="#097A44"/>
+                </svg>
+              </div>
+              {/* UPI */}
+              <div className="h-8 w-12 bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
+                <svg viewBox="0 0 80 40" className="h-5 w-10">
+                  <path d="M10 5h12v22c0 4-3 8-8 8H10V5z" fill="#097969"/>
+                  <path d="M28 5h12c6 0 10 4 10 10s-4 10-10 10h-4v10h-8V5zm8 14h3c2 0 4-2 4-4s-2-4-4-4h-3v8z" fill="#097969"/>
+                  <rect x="55" y="5" width="8" height="30" fill="#097969"/>
                 </svg>
               </div>
               {/* Net Banking */}
@@ -197,10 +197,6 @@ const Footer = () => {
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="white">
                   <path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18 7H6l6-2.5zM4 10v8h2v-8H4zm5 0v8h2v-8H9zm5 0v8h2v-8h-2zm5 0v8h2v-8h-2zM2 19v2h20v-2H2z"/>
                 </svg>
-              </div>
-              {/* COD */}
-              <div className="h-8 w-12 bg-gradient-to-br from-amber-400 to-amber-500 rounded-md overflow-hidden shadow-sm flex items-center justify-center">
-                <span className="text-[9px] font-bold text-slate-800">COD</span>
               </div>
             </div>
           </div>
