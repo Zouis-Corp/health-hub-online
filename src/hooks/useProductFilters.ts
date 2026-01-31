@@ -42,11 +42,8 @@ const defaultFilters: ProductFilters = {
   sortBy: "relevance",
 };
 
-export function useProductFilters(products: Product[] | undefined, initialConditionId?: string | null) {
-  const [filters, setFilters] = useState<ProductFilters>({
-    ...defaultFilters,
-    conditionId: initialConditionId || null,
-  });
+export function useProductFilters(products: Product[] | undefined) {
+  const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
 
   // Fetch conditions for dropdown
   const { data: conditions } = useQuery({
