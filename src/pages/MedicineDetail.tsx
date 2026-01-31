@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ShoppingCart,
-  Heart,
   Shield,
   Truck,
   Minus,
@@ -53,7 +52,6 @@ interface Medicine {
 const MedicineDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
 
@@ -116,17 +114,6 @@ const MedicineDetail = () => {
       });
     }
   };
-
-  const handleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-    toast({
-      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
-      description: isWishlisted 
-        ? `${medicine?.name} has been removed from your wishlist.`
-        : `${medicine?.name} has been added to your wishlist.`,
-    });
-  };
-
   const handleShare = async () => {
     const shareData = {
       title: medicine?.name || "TabletKart Medicine",
@@ -217,14 +204,6 @@ const MedicineDetail = () => {
                   className="w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
                 >
                   <Share2 className="h-4 w-4 text-foreground" />
-                </button>
-                <button 
-                  onClick={handleWishlist}
-                  className={`w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm ${
-                    isWishlisted ? 'bg-destructive text-white' : 'bg-background/80'
-                  }`}
-                >
-                  <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
                 </button>
               </div>
             </div>
@@ -662,14 +641,6 @@ const MedicineDetail = () => {
                   >
                     <ShoppingCart className="h-5 w-5" />
                     {medicine.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className={`h-12 w-12 rounded-lg flex-shrink-0 ${isWishlisted ? 'bg-destructive/10 border-destructive text-destructive' : ''}`}
-                    onClick={handleWishlist}
-                  >
-                    <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
                   </Button>
                   <Button 
                     variant="outline" 
