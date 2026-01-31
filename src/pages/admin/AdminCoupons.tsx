@@ -258,7 +258,8 @@ const AdminCoupons = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0 overflow-x-auto">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 overflow-x-auto hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -328,6 +329,65 @@ const AdminCoupons = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {isLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedCoupons?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No coupons found
+            </div>
+          ) : (
+            paginatedCoupons?.map((coupon) => (
+              <div key={coupon.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono font-bold text-primary">{coupon.code}</p>
+                    <p className="text-sm text-muted-foreground">{coupon.description || "No description"}</p>
+                  </div>
+                  <Switch
+                    checked={coupon.is_active}
+                    onCheckedChange={() => toggleActive.mutate(coupon)}
+                  />
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="gap-1">
+                    {getDiscountIcon(coupon.discount_type)}
+                    {getDiscountDisplay(coupon)}
+                  </Badge>
+                  <Badge variant="outline">Min ₹{coupon.minimum_order_value}</Badge>
+                  {coupon.maximum_discount && (
+                    <Badge variant="secondary">Max ₹{coupon.maximum_discount}</Badge>
+                  )}
+                </div>
+                
+                <p className="text-xs text-muted-foreground">
+                  Used: {coupon.times_used}{coupon.usage_limit ? ` / ${coupon.usage_limit}` : " (unlimited)"}
+                </p>
+                
+                <div className="flex gap-2 pt-2 border-t border-border">
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => handleEdit(coupon)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-destructive border-destructive/50"
+                    onClick={() => { setSelectedCoupon(coupon); setDeleteDialogOpen(true); }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

@@ -259,7 +259,8 @@ const AdminConditions = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -316,6 +317,57 @@ const AdminConditions = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {isLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedConditions?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No conditions found
+            </div>
+          ) : (
+            paginatedConditions?.map((condition) => (
+              <div key={condition.id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{condition.icon || "💊"}</span>
+                    <div>
+                      <p className="font-medium">{condition.name}</p>
+                      <p className="text-xs text-muted-foreground">{condition.slug}</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={condition.is_active}
+                    onCheckedChange={() => toggleActive(condition)}
+                  />
+                </div>
+                
+                {condition.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{condition.description}</p>
+                )}
+                
+                <div className="flex gap-2 pt-2 border-t border-border">
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => handleEdit(condition)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1.5 text-destructive border-destructive/50"
+                    onClick={() => { setSelectedCondition(condition); setDeleteDialogOpen(true); }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
