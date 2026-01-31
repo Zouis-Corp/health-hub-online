@@ -19,12 +19,19 @@ import {
   Loader2,
   X,
   Check,
+  CreditCard,
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 type DiscountType = "percentage" | "flat" | "free_delivery";
 
@@ -55,13 +62,14 @@ interface Address {
 const Cart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { items, updateQuantity, removeItem, totalPrice, hasPrescriptionItems, totalItems } = useCart();
+  const queryClient = useQueryClient();
+  const { items, updateQuantity, removeItem, totalPrice, hasPrescriptionItems, totalItems, clearCart } = useCart();
   const { user } = useAuth();
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   // Fetch user addresses
   const { data: addresses } = useQuery({
     queryKey: ["user-addresses", user?.id],
@@ -231,7 +239,99 @@ const Cart = () => {
     toast({ title: "Coupon removed" });
   };
 
-  const handleCheckout = () => {
+  const initiateRazorpayPayment = async (orderId: string, amount: number) => {
+    try {
+      // Create Razorpay order via edge function
+      const { data, error } = await supabase.functions.invoke('razorpay-payment', {
+        body: {
+          action: 'create-order',
+          orderId: orderId,
+          amount: amount,
+        },
+      });
+
+      if (error || !data.success) {
+        throw new Error(data?.error || 'Failed to create payment order');
+      }
+
+      // Open Razorpay checkout
+      const options = {
+        key: data.razorpayKeyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: 'TabletKart',
+        description: `Order #${orderId.slice(0, 8).toUpperCase()}`,
+        order_id: data.razorpayOrderId,
+        prefill: data.prefill,
+        theme: {
+          color: '#7C3AED',
+        },
+        handler: async (response: any) => {
+          // Verify payment
+          try {
+            const verifyResult = await supabase.functions.invoke('razorpay-payment', {
+              body: {
+                action: 'verify-payment',
+                orderId: orderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              },
+            });
+
+            if (verifyResult.error || !verifyResult.data.success) {
+              throw new Error(verifyResult.data?.error || 'Payment verification failed');
+            }
+
+            // Clear cart and redirect to dashboard
+            clearCart();
+            queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+            toast({ 
+              title: "Payment Successful! 🎉", 
+              description: "Your order is now being processed." 
+            });
+            navigate('/dashboard');
+          } catch (verifyError: any) {
+            toast({ 
+              title: "Payment verification failed", 
+              description: verifyError.message,
+              variant: "destructive" 
+            });
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsCheckoutLoading(false);
+            toast({ 
+              title: "Payment cancelled", 
+              description: "You can try again anytime.",
+              variant: "default" 
+            });
+          },
+        },
+      };
+
+      const RazorpayConstructor = window.Razorpay;
+      if (!RazorpayConstructor) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+      }
+
+      const razorpay = new RazorpayConstructor(options);
+      razorpay.open();
+      setIsCheckoutLoading(false);
+
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({ 
+        title: "Payment failed", 
+        description: error.message,
+        variant: "destructive" 
+      });
+      setIsCheckoutLoading(false);
+    }
+  };
+
+  const handleCheckout = async () => {
     if (!user) {
       navigate("/auth");
       return;
@@ -249,7 +349,63 @@ const Cart = () => {
       return;
     }
 
-    navigate("/dashboard");
+    // Direct checkout for non-prescription items
+    if (!selectedAddressId) {
+      toast({ 
+        title: "Please select a delivery address", 
+        description: "Add an address from your dashboard first.",
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setIsCheckoutLoading(true);
+
+    try {
+      // Create order with "approved" status (no prescription needed)
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          status: "approved",
+          total_amount: total,
+          payment_status: "pending",
+          address_id: selectedAddressId,
+          coupon_id: appliedCoupon?.id || null,
+          discount_amount: couponDiscount,
+          delivery_fee: deliveryFee,
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = items.map((item) => ({
+        order_id: orderData.id,
+        medicine_id: item.id,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Initiate Razorpay payment
+      await initiateRazorpayPayment(orderData.id, total);
+
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({ 
+        title: "Checkout failed", 
+        description: error.message,
+        variant: "destructive" 
+      });
+      setIsCheckoutLoading(false);
+    }
   };
 
   return (
@@ -485,16 +641,22 @@ const Cart = () => {
                   <Button 
                     className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground gap-2 h-11 rounded-lg"
                     onClick={handleCheckout}
+                    disabled={isCheckoutLoading}
                   >
-                    {hasPrescriptionItems ? (
+                    {isCheckoutLoading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : hasPrescriptionItems ? (
                       <>
                         <Upload className="h-5 w-5" />
                         Upload Prescription & Checkout
                       </>
                     ) : (
                       <>
-                        Proceed to Checkout
-                        <ArrowRight className="h-5 w-5" />
+                        <CreditCard className="h-5 w-5" />
+                        Pay ₹{total.toLocaleString()}
                       </>
                     )}
                   </Button>
