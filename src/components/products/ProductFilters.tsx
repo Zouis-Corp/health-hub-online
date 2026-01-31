@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +16,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Filter, X, RotateCcw } from "lucide-react";
-import { ProductFilters as FilterType } from "@/hooks/useProductFilters";
+import { Filter, RotateCcw } from "lucide-react";
+import { ProductFilters as FilterType, Condition } from "@/hooks/useProductFilters";
 
 interface ProductFiltersProps {
   filters: FilterType;
   uniqueBrands: string[];
+  conditions: Condition[];
   activeFilterCount: number;
   updateFilter: <K extends keyof FilterType>(key: K, value: FilterType[K]) => void;
   resetFilters: () => void;
@@ -31,34 +31,30 @@ interface ProductFiltersProps {
 const FilterContent = ({
   filters,
   uniqueBrands,
+  conditions,
   updateFilter,
   resetFilters,
 }: Omit<ProductFiltersProps, "activeFilterCount">) => (
   <div className="space-y-6">
-    {/* Price Range */}
+    {/* Condition Filter */}
     <div className="space-y-3">
-      <Label className="text-sm font-semibold">Price Range</Label>
-      <div className="flex gap-2">
-        <Input
-          type="number"
-          placeholder="Min"
-          value={filters.priceMin ?? ""}
-          onChange={(e) =>
-            updateFilter("priceMin", e.target.value ? Number(e.target.value) : null)
-          }
-          className="h-9"
-        />
-        <span className="text-muted-foreground self-center">-</span>
-        <Input
-          type="number"
-          placeholder="Max"
-          value={filters.priceMax ?? ""}
-          onChange={(e) =>
-            updateFilter("priceMax", e.target.value ? Number(e.target.value) : null)
-          }
-          className="h-9"
-        />
-      </div>
+      <Label className="text-sm font-semibold">Condition</Label>
+      <Select
+        value={filters.conditionId ?? "all"}
+        onValueChange={(val) => updateFilter("conditionId", val === "all" ? null : val)}
+      >
+        <SelectTrigger className="h-9">
+          <SelectValue placeholder="All Conditions" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover border border-border">
+          <SelectItem value="all">All Conditions</SelectItem>
+          {conditions.map((condition) => (
+            <SelectItem key={condition.id} value={condition.id}>
+              {condition.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
 
     {/* Prescription Filter */}
@@ -82,7 +78,7 @@ const FilterContent = ({
         <SelectTrigger className="h-9">
           <SelectValue placeholder="All" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-popover border border-border">
           <SelectItem value="all">All Products</SelectItem>
           <SelectItem value="required">Prescription Required</SelectItem>
           <SelectItem value="not-required">No Prescription</SelectItem>
@@ -101,7 +97,7 @@ const FilterContent = ({
           <SelectTrigger className="h-9">
             <SelectValue placeholder="All Brands" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-popover border border-border">
             <SelectItem value="all">All Brands</SelectItem>
             {uniqueBrands.map((brand) => (
               <SelectItem key={brand} value={brand}>
@@ -137,6 +133,7 @@ const FilterContent = ({
 const ProductFiltersComponent = ({
   filters,
   uniqueBrands,
+  conditions,
   activeFilterCount,
   updateFilter,
   resetFilters,
@@ -160,6 +157,7 @@ const ProductFiltersComponent = ({
           <FilterContent
             filters={filters}
             uniqueBrands={uniqueBrands}
+            conditions={conditions}
             updateFilter={updateFilter}
             resetFilters={resetFilters}
           />
@@ -191,6 +189,7 @@ const ProductFiltersComponent = ({
               <FilterContent
                 filters={filters}
                 uniqueBrands={uniqueBrands}
+                conditions={conditions}
                 updateFilter={updateFilter}
                 resetFilters={resetFilters}
               />
