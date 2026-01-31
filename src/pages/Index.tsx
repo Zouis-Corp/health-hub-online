@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -10,10 +10,20 @@ import DatabaseProductCarousel from "@/components/home/DatabaseProductCarousel";
 import StatsSection from "@/components/home/StatsSection";
 import ReviewsSection from "@/components/home/ReviewsSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import AboutSection from "@/components/home/AboutSection";
 import ProductSymbolsGuide from "@/components/ui/ProductSymbolsGuide";
+
+// Update document title for SEO
+const updateMetaTitle = () => {
+  document.title = "TabletKart - India's Trusted Online Pharmacy | Buy Medicines Online at Up to 85% Off";
+};
 
 const Index = () => {
   const [showSymbolsGuide, setShowSymbolsGuide] = useState(false);
+
+  useEffect(() => {
+    updateMetaTitle();
+  }, []);
 
   const handleProductSectionVisible = useCallback(() => {
     setShowSymbolsGuide(true);
@@ -40,6 +50,7 @@ const Index = () => {
           filter="otc"
           limit={10}
         />
+        <AboutSection />
         <StatsSection />
         <ReviewsSection />
         <WhyChooseUs />
