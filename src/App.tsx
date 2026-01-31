@@ -23,8 +23,7 @@ import Checkout from "./pages/Checkout";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
-import PatientAssistance from "./pages/PatientAssistance";
-import ImportedMedicine from "./pages/ImportedMedicine";
+import ContactUs from "./pages/ContactUs";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -96,8 +95,7 @@ const App = () => (
                 
                 <Route path="/medicine/:id" element={<MedicineDetail />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/patient-assistance" element={<PatientAssistance />} />
-                <Route path="/imported-medicine" element={<ImportedMedicine />} />
+                <Route path="/contact" element={<ContactUs />} />
                 
                 {/* Protected Routes - User */}
                 <Route path="/upload-prescription" element={

@@ -17,19 +17,19 @@ import {
   Pill,
   Heart,
   ListTree,
-  Globe,
-  HandHeart,
   LucideIcon,
   Package,
   MapPin,
   Home,
+  FileText,
+  Phone,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 
-const superSpecialityItems = [
+const shopItems = [
   { 
     name: "By Condition", 
     path: "/conditions", 
@@ -64,8 +64,8 @@ const superSpecialityItems = [
 
 const navLinks: { name: string; path: string; icon: LucideIcon }[] = [
   { name: "Home", path: "/", icon: Home },
-  { name: "Imported Medicines", path: "/imported-medicine", icon: Globe },
-  { name: "Patient Assistance", path: "/patient-assistance", icon: HandHeart },
+  { name: "Order by Prescription", path: "/upload-prescription", icon: FileText },
+  { name: "Contact Us", path: "/contact", icon: Phone },
 ];
 
 interface SearchResult {
@@ -81,7 +81,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showSuperSpeciality, setShowSuperSpeciality] = useState(false);
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -187,28 +187,28 @@ const Header = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
-              {/* Super Speciality Dropdown */}
+              {/* Shop Dropdown */}
               <div 
                 className="relative"
-                onMouseEnter={() => setShowSuperSpeciality(true)}
-                onMouseLeave={() => setShowSuperSpeciality(false)}
+                onMouseEnter={() => setShowShopDropdown(true)}
+                onMouseLeave={() => setShowShopDropdown(false)}
               >
                 <button className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-2">
                   <Pill className="h-4 w-4" />
-                  Super Speciality
+                  Shop
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
                 
-                {showSuperSpeciality && (
+                {showShopDropdown && (
                   <div className="absolute top-full left-0 pt-2 z-50">
                     <div className="w-[380px] p-3 bg-card border border-border rounded-xl shadow-lg">
                       <div className="grid gap-1">
-                        {superSpecialityItems.map((item) => (
+                        {shopItems.map((item) => (
                           <Link
                             key={item.path}
                             to={item.path}
                             className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-muted transition-colors group"
-                            onClick={() => setShowSuperSpeciality(false)}
+                            onClick={() => setShowShopDropdown(false)}
                           >
                             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                               <item.icon className="h-4 w-4 text-primary" />
@@ -516,12 +516,12 @@ const Header = () => {
                 </Link>
               ))}
 
-              {/* Super Speciality Section */}
+              {/* Shop Section */}
               <div className="pt-4">
                 <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Super Speciality
+                  Shop
                 </p>
-                {superSpecialityItems.map((item) => (
+                {shopItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
