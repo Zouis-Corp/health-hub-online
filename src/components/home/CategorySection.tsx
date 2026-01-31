@@ -55,7 +55,7 @@ const CategorySection = () => {
             conditions?.map((condition) => (
               <Link
                 key={condition.id}
-                to={`/conditions?condition=${condition.id}`}
+                to={`/conditions/${condition.slug}`}
                 className="flex flex-col items-center gap-2 sm:gap-3 group"
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-muted/50 rounded-2xl flex items-center justify-center group-hover:scale-105 group-hover:bg-primary/10 transition-all border border-border/50 shadow-sm">
