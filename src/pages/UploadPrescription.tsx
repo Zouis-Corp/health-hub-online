@@ -40,8 +40,11 @@ const UploadPrescription = () => {
   const cartState = location.state as { couponId?: string; discountAmount?: number; deliveryFee?: number } | null;
   
   const [files, setFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   
   // Address state
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -89,6 +92,7 @@ const UploadPrescription = () => {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const validFiles: File[] = [];
       const invalidFiles: string[] = [];
+      const newPreviews: string[] = [];
       
       Array.from(e.dataTransfer.files).forEach(file => {
         if (!file.type.startsWith("image/")) {
@@ -97,6 +101,7 @@ const UploadPrescription = () => {
           invalidFiles.push(`${file.name} (exceeds 2MB limit)`);
         } else {
           validFiles.push(file);
+          newPreviews.push(URL.createObjectURL(file));
         }
       });
       
@@ -109,6 +114,7 @@ const UploadPrescription = () => {
       }
       
       setFiles([...files, ...validFiles]);
+      setFilePreviews([...filePreviews, ...newPreviews]);
     }
   };
 
@@ -116,6 +122,7 @@ const UploadPrescription = () => {
     if (e.target.files) {
       const validFiles: File[] = [];
       const invalidFiles: string[] = [];
+      const newPreviews: string[] = [];
       
       Array.from(e.target.files).forEach(file => {
         if (!file.type.startsWith("image/")) {
@@ -124,6 +131,7 @@ const UploadPrescription = () => {
           invalidFiles.push(`${file.name} (exceeds 2MB limit)`);
         } else {
           validFiles.push(file);
+          newPreviews.push(URL.createObjectURL(file));
         }
       });
       
@@ -136,11 +144,15 @@ const UploadPrescription = () => {
       }
       
       setFiles([...files, ...validFiles]);
+      setFilePreviews([...filePreviews, ...newPreviews]);
     }
   };
 
   const removeFile = (index: number) => {
+    // Revoke the object URL to free memory
+    URL.revokeObjectURL(filePreviews[index]);
     setFiles(files.filter((_, i) => i !== index));
+    setFilePreviews(filePreviews.filter((_, i) => i !== index));
   };
 
   const handleAddAddress = async (data: AddressFormData) => {
@@ -216,8 +228,20 @@ const UploadPrescription = () => {
     }
 
     setIsSubmitting(true);
+    setUploadProgress(0);
 
     try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
       // Two flows:
       // 1. Cart has items → Create order with items, prescription linked
       // 2. No cart items → Create prescription only, admin adds items later
@@ -299,8 +323,14 @@ const UploadPrescription = () => {
           console.error('Failed to send notification email:', emailError);
         }
 
-        // Clear cart and redirect
+        // Clear cart and show success
         clearCart();
+        setUploadProgress(100);
+        setUploadSuccess(true);
+        
+        // Wait for success animation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         toast({
           title: "Order placed successfully!",
           description: "Your prescription is under review. We'll notify you once approved.",
@@ -342,6 +372,12 @@ const UploadPrescription = () => {
           console.error('Failed to send notification email:', emailError);
         }
 
+        setUploadProgress(100);
+        setUploadSuccess(true);
+        
+        // Wait for success animation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         toast({
           title: "Prescription submitted!",
           description: "Our pharmacist will review your prescription and add medicines. We'll notify you once ready for payment.",
@@ -454,36 +490,45 @@ const UploadPrescription = () => {
               </div>
             </div>
 
-            {/* Uploaded Files */}
+            {/* Uploaded Files with Preview */}
             {files.length > 0 && (
-              <div className="mt-4 sm:mt-5 space-y-2">
+              <div className="mt-4 sm:mt-5 space-y-3">
                 <p className="text-xs sm:text-sm font-medium text-foreground">
-                  Uploaded Files ({files.length})
+                  Prescription Preview ({files.length})
                 </p>
-                {files.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2.5 sm:p-3 bg-muted rounded-lg"
-                  >
-                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-1">
-                          {file.name}
-                        </p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeFile(index)}
-                      className="p-1 hover:bg-destructive/10 rounded-full transition-colors flex-shrink-0"
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {files.map((file, index) => (
+                    <div
+                      key={index}
+                      className="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-square"
                     >
-                      <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                    </button>
-                  </div>
-                ))}
+                      {/* Image Preview */}
+                      <img 
+                        src={filePreviews[index]} 
+                        alt={file.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Overlay with file info */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                          <p className="text-[10px] sm:text-xs text-white font-medium line-clamp-1">
+                            {file.name}
+                          </p>
+                          <p className="text-[9px] sm:text-[10px] text-white/70">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                      {/* Remove button */}
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="absolute top-2 right-2 w-6 h-6 bg-destructive/90 hover:bg-destructive rounded-full flex items-center justify-center transition-colors shadow-md"
+                      >
+                        <X className="h-3.5 w-3.5 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -636,6 +681,78 @@ const UploadPrescription = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Upload Progress Overlay */}
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-scale-in">
+            {!uploadSuccess ? (
+              <>
+                {/* Uploading Animation */}
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4">
+                  {/* Outer ring */}
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle
+                      className="text-muted stroke-current"
+                      strokeWidth="8"
+                      fill="none"
+                      r="42"
+                      cx="50"
+                      cy="50"
+                    />
+                    <circle
+                      className="text-primary stroke-current transition-all duration-300"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      fill="none"
+                      r="42"
+                      cx="50"
+                      cy="50"
+                      style={{
+                        strokeDasharray: `${2 * Math.PI * 42}`,
+                        strokeDashoffset: `${2 * Math.PI * 42 * (1 - uploadProgress / 100)}`,
+                      }}
+                    />
+                  </svg>
+                  {/* Center icon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Upload className="h-8 w-8 sm:h-10 sm:w-10 text-primary animate-pulse" />
+                  </div>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                  Uploading Prescription
+                </h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Please wait while we upload your files...
+                </p>
+                <div className="text-2xl sm:text-3xl font-bold text-primary">
+                  {uploadProgress}%
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Success Animation */}
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4">
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center animate-scale-in shadow-lg">
+                    <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                  </div>
+                  {/* Celebration particles */}
+                  <div className="absolute -top-2 -left-2 w-3 h-3 bg-amber-400 rounded-full animate-ping" />
+                  <div className="absolute -top-1 -right-3 w-2 h-2 bg-primary rounded-full animate-ping delay-100" />
+                  <div className="absolute -bottom-2 -left-1 w-2 h-2 bg-secondary rounded-full animate-ping delay-200" />
+                  <div className="absolute -bottom-1 -right-2 w-3 h-3 bg-emerald-400 rounded-full animate-ping delay-300" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                  Upload Successful!
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Redirecting to your dashboard...
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
