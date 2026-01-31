@@ -59,15 +59,20 @@ const MobileBottomNav = () => {
         href="https://book.tabletkart.in"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 left-3 z-40 md:hidden group"
+        className="fixed bottom-[72px] left-2 z-40 md:hidden group"
       >
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl backdrop-blur-xl bg-white/70 dark:bg-black/50 border border-white/40 dark:border-white/20 shadow-lg shadow-black/10 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-white/80 dark:hover:bg-black/60">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center flex-shrink-0">
-            <Calendar className="h-4 w-4 text-primary-foreground" />
+        <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg backdrop-blur-2xl bg-white/50 dark:bg-white/10 border border-white/60 dark:border-white/30 shadow-lg shadow-black/5 transition-all duration-300 hover:scale-105 hover:bg-white/70 dark:hover:bg-white/20"
+          style={{ 
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)'
+          }}
+        >
+          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary/90 to-primary/60 flex items-center justify-center flex-shrink-0">
+            <Calendar className="h-3 w-3 text-primary-foreground" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-muted-foreground font-medium leading-tight">Book Now</span>
-            <span className="text-xs font-semibold text-foreground leading-tight">Nanmai Clinic</span>
+          <div className="flex flex-col pr-0.5">
+            <span className="text-[8px] text-muted-foreground/80 font-medium leading-tight">Book</span>
+            <span className="text-[10px] font-semibold text-foreground/90 leading-tight">Nanmai Clinic</span>
           </div>
         </div>
       </a>
