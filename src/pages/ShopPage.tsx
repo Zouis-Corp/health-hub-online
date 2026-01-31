@@ -109,8 +109,74 @@ const ShopPage = () => {
 
             {/* Main Content */}
             <div className="flex-1">
-              {/* Search and Sort Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              {/* Mobile Layout: Row 1 - Filters & Sort */}
+              <div className="flex gap-2 mb-3 lg:hidden">
+                <ShopFilters
+                  filters={filters}
+                  uniqueBrands={uniqueBrands}
+                  conditions={conditions}
+                  specialities={specialities}
+                  molecules={molecules}
+                  activeFilterCount={activeFilterCount}
+                  updateFilter={updateFilter}
+                  resetFilters={resetFilters}
+                  mobileOnly
+                />
+                <Select
+                  value={filters.sortBy}
+                  onValueChange={(val) => updateFilter("sortBy", val as any)}
+                >
+                  <SelectTrigger className="flex-1 h-10 rounded-lg">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border border-border">
+                    <SelectItem value="relevance">Relevance</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="discount">Highest Discount</SelectItem>
+                    <SelectItem value="name">Name</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Mobile Layout: Row 2 - Search & View Toggle */}
+              <div className="flex gap-2 mb-4 lg:hidden">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={filters.search}
+                    onChange={(e) => updateFilter("search", e.target.value)}
+                    className="pl-10 h-10 rounded-lg"
+                  />
+                </div>
+                <div className="flex border border-border rounded-lg overflow-hidden flex-shrink-0">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2.5 ${
+                      viewMode === "grid"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2.5 ${
+                      viewMode === "list"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Desktop Layout: Search and Sort Bar */}
+              <div className="hidden lg:flex gap-3 mb-6">
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input

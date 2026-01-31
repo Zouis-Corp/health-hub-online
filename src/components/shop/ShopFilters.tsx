@@ -28,6 +28,7 @@ interface ShopFiltersProps {
   activeFilterCount: number;
   updateFilter: <K extends keyof FilterType>(key: K, value: FilterType[K]) => void;
   resetFilters: () => void;
+  mobileOnly?: boolean;
 }
 
 const FilterContent = ({
@@ -185,7 +186,46 @@ const ShopFiltersComponent = ({
   activeFilterCount,
   updateFilter,
   resetFilters,
+  mobileOnly = false,
 }: ShopFiltersProps) => {
+  // If mobileOnly, only render the mobile filter button (for inline use)
+  if (mobileOnly) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2 h-10 flex-1">
+            <Filter className="h-4 w-4" />
+            Filters
+            {activeFilterCount > 0 && (
+              <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            <FilterContent
+              filters={filters}
+              uniqueBrands={uniqueBrands}
+              conditions={conditions}
+              specialities={specialities}
+              molecules={molecules}
+              updateFilter={updateFilter}
+              resetFilters={resetFilters}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
     <>
       {/* Desktop Sidebar */}
@@ -212,42 +252,6 @@ const ShopFiltersComponent = ({
             resetFilters={resetFilters}
           />
         </div>
-      </div>
-
-      {/* Mobile Filter Sheet */}
-      <div className="lg:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-              {activeFilterCount > 0 && (
-                <Badge className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px]">
-            <SheetHeader>
-              <SheetTitle className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filters
-              </SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <FilterContent
-                filters={filters}
-                uniqueBrands={uniqueBrands}
-                conditions={conditions}
-                specialities={specialities}
-                molecules={molecules}
-                updateFilter={updateFilter}
-                resetFilters={resetFilters}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
     </>
   );
