@@ -193,11 +193,14 @@ const Header = () => {
                 onMouseEnter={() => setShowShopDropdown(true)}
                 onMouseLeave={() => setShowShopDropdown(false)}
               >
-                <button className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-2">
+                <Link 
+                  to="/shop"
+                  className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-2"
+                >
                   <Pill className="h-4 w-4" />
                   Shop
                   <ChevronDown className="h-3.5 w-3.5" />
-                </button>
+                </Link>
                 
                 {showShopDropdown && (
                   <div className="absolute top-full left-0 pt-2 z-50">
