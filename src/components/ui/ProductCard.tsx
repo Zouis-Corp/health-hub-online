@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Check, Loader2, Heart, Pill, Thermometer, FileText } from "lucide-react";
+import { ShoppingCart, Check, Loader2, Pill, Thermometer, FileText } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
   TooltipContent,
@@ -41,10 +40,8 @@ const ProductCard = ({
   className = "",
 }: ProductCardProps) => {
   const { addItem } = useCart();
-  const { toast } = useToast();
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const savings = originalPrice ? originalPrice - price : 0;
@@ -72,16 +69,6 @@ const ProductCard = ({
     setIsAdded(true);
 
     setTimeout(() => setIsAdded(false), 2000);
-  };
-
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    toast({
-      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
-      description: `${name} has been ${isWishlisted ? "removed from" : "added to"} your wishlist.`,
-    });
   };
 
   return (
@@ -135,18 +122,6 @@ const ProductCard = ({
             )}
           </div>
         </div>
-
-        {/* Wishlist Button */}
-        <button
-          onClick={handleWishlist}
-          className={`absolute bottom-3 right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
-            isWishlisted 
-              ? "bg-red-500 text-white shadow-lg" 
-              : "bg-white/80 backdrop-blur-sm text-muted-foreground hover:bg-white hover:text-red-500 shadow-md"
-          }`}
-        >
-          <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${isWishlisted ? "fill-current" : ""}`} />
-        </button>
 
         {/* Product Image */}
         <Link to={`/medicine/${slug}`} className="block h-full">

@@ -13,7 +13,7 @@ import {
   User,
   Package,
   FileText,
-  Heart,
+  
   MapPin,
   LogOut,
   ChevronRight,
@@ -719,7 +719,6 @@ const Dashboard = () => {
                     { id: "orders", icon: Package, label: "Orders" },
                     { id: "prescriptions", icon: FileText, label: "Rx" },
                     { id: "addresses", icon: MapPin, label: "Address" },
-                    { id: "wishlist", icon: Heart, label: "Wishlist" },
                     { id: "profile", icon: User, label: "Profile" },
                     { id: "logout", icon: LogOut, label: "Logout", isLogout: true },
                   ].map((item) => {
@@ -777,7 +776,6 @@ const Dashboard = () => {
                     { id: "orders", icon: Package, label: "My Orders" },
                     { id: "prescriptions", icon: FileText, label: "Prescriptions" },
                     { id: "addresses", icon: MapPin, label: "Addresses" },
-                    { id: "wishlist", icon: Heart, label: "Wishlist" },
                     { id: "profile", icon: User, label: "Profile" },
                   ].map((item) => {
                     const Icon = item.icon;
@@ -1244,24 +1242,6 @@ const Dashboard = () => {
                         Save Changes
                       </Button>
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Wishlist Tab */}
-              {activeTab === "wishlist" && (
-                <div className="space-y-4">
-                  <h2 className="text-xl font-bold text-foreground font-heading">
-                    My Wishlist
-                  </h2>
-                  <div className="text-center py-12 bg-card rounded-xl border border-border">
-                    <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground mb-4">
-                      Your wishlist is empty
-                    </p>
-                    <Link to="/conditions">
-                      <Button variant="outline" className="rounded-lg">Browse Medicines</Button>
-                    </Link>
                   </div>
                 </div>
               )}
