@@ -1,4 +1,4 @@
-project_id = "ruottpiczggjjuzjimvx"
+project_id = "bplfricyljoythzwulbt"
 
 [functions.send-otp]
 verify_jwt = false
@@ -10,4 +10,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-notification-email]
+verify_jwt = false
+
+[functions.razorpay-payment]
 verify_jwt = false
