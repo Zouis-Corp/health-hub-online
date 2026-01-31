@@ -65,7 +65,7 @@ const AddressForm = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("delivery_fees")
-        .select("state_name, delivery_fee, free_delivery_minimum")
+        .select("state_name")
         .eq("is_active", true)
         .order("state_name", { ascending: true });
       if (error) throw error;
@@ -88,11 +88,6 @@ const AddressForm = ({
       });
     }
   }, [initialData]);
-
-  // Get selected state's delivery info
-  const selectedStateInfo = states?.find(
-    (s) => s.state_name.toLowerCase() === formData.state.toLowerCase()
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,33 +209,13 @@ const AddressForm = ({
             <SelectContent className="bg-background border border-border z-50 max-h-[300px]">
               {states?.map((state) => (
                 <SelectItem key={state.state_name} value={state.state_name}>
-                  <div className="flex items-center justify-between gap-2 w-full">
-                    <span>{state.state_name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      ₹{state.delivery_fee}
-                      {state.free_delivery_minimum > 0 && (
-                        <span className="text-secondary ml-1">
-                          (Free ₹{state.free_delivery_minimum}+)
-                        </span>
-                      )}
-                    </span>
-                  </div>
+                  {state.state_name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {errors.state && (
             <p className="text-[10px] sm:text-xs text-destructive">{errors.state}</p>
-          )}
-          {selectedStateInfo && (
-            <p className="text-[10px] sm:text-xs text-muted-foreground">
-              Delivery: ₹{selectedStateInfo.delivery_fee}
-              {selectedStateInfo.free_delivery_minimum > 0 && (
-                <span className="text-secondary">
-                  {" "}• Free on orders ₹{selectedStateInfo.free_delivery_minimum}+
-                </span>
-              )}
-            </p>
           )}
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
