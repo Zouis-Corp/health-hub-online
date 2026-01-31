@@ -193,6 +193,7 @@ export type Database = {
           salt_name: string | null
           slug: string
           stock: number | null
+          type: Database["public"]["Enums"]["product_type"]
           updated_at: string | null
         }
         Insert: {
@@ -211,6 +212,7 @@ export type Database = {
           salt_name?: string | null
           slug: string
           stock?: number | null
+          type?: Database["public"]["Enums"]["product_type"]
           updated_at?: string | null
         }
         Update: {
@@ -229,6 +231,7 @@ export type Database = {
           salt_name?: string | null
           slug?: string
           stock?: number | null
+          type?: Database["public"]["Enums"]["product_type"]
           updated_at?: string | null
         }
         Relationships: [
@@ -240,6 +243,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      molecules: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -420,6 +453,114 @@ export type Database = {
           },
         ]
       }
+      product_conditions: {
+        Row: {
+          condition_id: string
+          created_at: string | null
+          id: string
+          product_id: string
+        }
+        Insert: {
+          condition_id: string
+          created_at?: string | null
+          id?: string
+          product_id: string
+        }
+        Update: {
+          condition_id?: string
+          created_at?: string | null
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_conditions_condition_id_fkey"
+            columns: ["condition_id"]
+            isOneToOne: false
+            referencedRelation: "conditions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_conditions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_molecules: {
+        Row: {
+          created_at: string | null
+          id: string
+          molecule_id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          molecule_id: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          molecule_id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_molecules_molecule_id_fkey"
+            columns: ["molecule_id"]
+            isOneToOne: false
+            referencedRelation: "molecules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_molecules_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_specialities: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string
+          speciality_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id: string
+          speciality_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          speciality_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_specialities_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_specialities_speciality_id_fkey"
+            columns: ["speciality_id"]
+            isOneToOne: false
+            referencedRelation: "super_specialities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -449,6 +590,39 @@ export type Database = {
           is_blocked?: boolean | null
           name?: string | null
           phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      super_specialities: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -501,6 +675,7 @@ export type Database = {
         | "delivered"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       prescription_status: "pending" | "approved" | "rejected"
+      product_type: "medicine" | "wellness"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -640,6 +815,7 @@ export const Constants = {
       ],
       payment_status: ["pending", "paid", "failed", "refunded"],
       prescription_status: ["pending", "approved", "rejected"],
+      product_type: ["medicine", "wellness"],
     },
   },
 } as const

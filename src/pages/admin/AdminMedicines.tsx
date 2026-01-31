@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import ExportCSV from "@/components/admin/ExportCSV";
 import Pagination from "@/components/admin/Pagination";
 import usePagination from "@/hooks/usePagination";
@@ -46,11 +47,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Medicine {
   id: string;
   name: string;
   slug: string;
+  type: "medicine" | "wellness";
   condition_id: string | null;
   salt_name: string | null;
   brand: string | null;
@@ -68,6 +71,16 @@ interface Condition {
   name: string;
 }
 
+interface Molecule {
+  id: string;
+  name: string;
+}
+
+interface SuperSpeciality {
+  id: string;
+  name: string;
+}
+
 const AdminMedicines = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -75,9 +88,15 @@ const AdminMedicines = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
   
+  // Multi-select states
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+  const [selectedMolecules, setSelectedMolecules] = useState<string[]>([]);
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
+  
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
+    type: "medicine" as "medicine" | "wellness",
     condition_id: "",
     salt_name: "",
     brand: "",
@@ -115,12 +134,40 @@ const AdminMedicines = () => {
     },
   });
 
+  const { data: molecules } = useQuery({
+    queryKey: ["molecules-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("molecules")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data as Molecule[];
+    },
+  });
+
+  const { data: specialities } = useQuery({
+    queryKey: ["specialities-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("super_specialities")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data as SuperSpeciality[];
+    },
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const { error } = await supabase.from("medicines").insert([data]);
+      const { data: newMedicine, error } = await supabase.from("medicines").insert([data]).select().single();
       if (error) throw error;
+      return newMedicine;
     },
-    onSuccess: () => {
+    onSuccess: async (newMedicine) => {
+      await saveRelations(newMedicine.id);
       queryClient.invalidateQueries({ queryKey: ["admin-medicines"] });
       toast({ title: "Medicine created successfully" });
       resetForm();
@@ -135,8 +182,10 @@ const AdminMedicines = () => {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const { error } = await supabase.from("medicines").update(data).eq("id", id);
       if (error) throw error;
+      return id;
     },
-    onSuccess: () => {
+    onSuccess: async (id) => {
+      await saveRelations(id);
       queryClient.invalidateQueries({ queryKey: ["admin-medicines"] });
       toast({ title: "Medicine updated successfully" });
       resetForm();
@@ -165,18 +214,22 @@ const AdminMedicines = () => {
 
   const resetForm = () => {
     setFormData({
-      name: "", slug: "", condition_id: "", salt_name: "", brand: "",
+      name: "", slug: "", type: "medicine", condition_id: "", salt_name: "", brand: "",
       dosage: "", prescription_required: false, price: "", original_price: "",
       stock: "0", description: "", is_active: true,
     });
+    setSelectedConditions([]);
+    setSelectedMolecules([]);
+    setSelectedSpecialities([]);
     setSelectedMedicine(null);
   };
 
-  const handleEdit = (medicine: Medicine) => {
+  const handleEdit = async (medicine: Medicine) => {
     setSelectedMedicine(medicine);
     setFormData({
       name: medicine.name,
       slug: medicine.slug,
+      type: medicine.type || "medicine",
       condition_id: medicine.condition_id || "",
       salt_name: medicine.salt_name || "",
       brand: medicine.brand || "",
@@ -188,15 +241,28 @@ const AdminMedicines = () => {
       description: "",
       is_active: medicine.is_active,
     });
+    
+    // Fetch existing relations
+    const [conditionsRes, moleculesRes, specialitiesRes] = await Promise.all([
+      supabase.from("product_conditions").select("condition_id").eq("product_id", medicine.id),
+      supabase.from("product_molecules").select("molecule_id").eq("product_id", medicine.id),
+      supabase.from("product_specialities").select("speciality_id").eq("product_id", medicine.id),
+    ]);
+    
+    setSelectedConditions(conditionsRes.data?.map(r => r.condition_id) || []);
+    setSelectedMolecules(moleculesRes.data?.map(r => r.molecule_id) || []);
+    setSelectedSpecialities(specialitiesRes.data?.map(r => r.speciality_id) || []);
+    
     setDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-");
     const data = {
       name: formData.name,
       slug,
+      type: formData.type,
       condition_id: formData.condition_id || null,
       salt_name: formData.salt_name || null,
       brand: formData.brand || null,
@@ -213,6 +279,27 @@ const AdminMedicines = () => {
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  // Save junction table relations after medicine is created/updated
+  const saveRelations = async (productId: string) => {
+    // Clear existing relations
+    await Promise.all([
+      supabase.from("product_conditions").delete().eq("product_id", productId),
+      supabase.from("product_molecules").delete().eq("product_id", productId),
+      supabase.from("product_specialities").delete().eq("product_id", productId),
+    ]);
+    
+    // Insert new relations
+    const conditionInserts = selectedConditions.map(id => ({ product_id: productId, condition_id: id }));
+    const moleculeInserts = selectedMolecules.map(id => ({ product_id: productId, molecule_id: id }));
+    const specialityInserts = selectedSpecialities.map(id => ({ product_id: productId, speciality_id: id }));
+    
+    await Promise.all([
+      conditionInserts.length > 0 && supabase.from("product_conditions").insert(conditionInserts),
+      moleculeInserts.length > 0 && supabase.from("product_molecules").insert(moleculeInserts),
+      specialityInserts.length > 0 && supabase.from("product_specialities").insert(specialityInserts),
+    ]);
   };
 
   // Pagination
@@ -272,6 +359,24 @@ const AdminMedicines = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="type">Type *</Label>
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value: "medicine" | "wellness") => setFormData({ ...formData, type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="medicine">Medicine</SelectItem>
+                      <SelectItem value="wellness">Wellness</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="brand">Brand</Label>
                   <Input
                     id="brand"
@@ -279,27 +384,8 @@ const AdminMedicines = () => {
                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="condition">Condition</Label>
-                  <Select
-                    value={formData.condition_id}
-                    onValueChange={(value) => setFormData({ ...formData, condition_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select condition" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {conditions?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="salt_name">Salt Name</Label>
+                  <Label htmlFor="salt_name">Salt Name (Legacy)</Label>
                   <Input
                     id="salt_name"
                     value={formData.salt_name}
@@ -352,6 +438,102 @@ const AdminMedicines = () => {
                     placeholder="For discounts"
                   />
                 </div>
+              </div>
+
+              {/* Multi-select: Conditions */}
+              <div className="space-y-2">
+                <Label>Conditions (Multi-select)</Label>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {selectedConditions.map(id => {
+                    const cond = conditions?.find(c => c.id === id);
+                    return cond ? (
+                      <Badge key={id} variant="secondary" className="gap-1">
+                        {cond.name}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedConditions(prev => prev.filter(i => i !== id))} />
+                      </Badge>
+                    ) : null;
+                  })}
+                </div>
+                <ScrollArea className="h-32 border rounded-md p-2">
+                  <div className="space-y-2">
+                    {conditions?.map(c => (
+                      <div key={c.id} className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={selectedConditions.includes(c.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) setSelectedConditions(prev => [...prev, c.id]);
+                            else setSelectedConditions(prev => prev.filter(i => i !== c.id));
+                          }}
+                        />
+                        <span className="text-sm">{c.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+
+              {/* Multi-select: Molecules */}
+              <div className="space-y-2">
+                <Label>Molecules (Multi-select)</Label>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {selectedMolecules.map(id => {
+                    const mol = molecules?.find(m => m.id === id);
+                    return mol ? (
+                      <Badge key={id} variant="secondary" className="gap-1">
+                        {mol.name}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedMolecules(prev => prev.filter(i => i !== id))} />
+                      </Badge>
+                    ) : null;
+                  })}
+                </div>
+                <ScrollArea className="h-32 border rounded-md p-2">
+                  <div className="space-y-2">
+                    {molecules?.map(m => (
+                      <div key={m.id} className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={selectedMolecules.includes(m.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) setSelectedMolecules(prev => [...prev, m.id]);
+                            else setSelectedMolecules(prev => prev.filter(i => i !== m.id));
+                          }}
+                        />
+                        <span className="text-sm">{m.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+
+              {/* Multi-select: Super Specialities */}
+              <div className="space-y-2">
+                <Label>Super Specialities (Multi-select)</Label>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {selectedSpecialities.map(id => {
+                    const spec = specialities?.find(s => s.id === id);
+                    return spec ? (
+                      <Badge key={id} variant="secondary" className="gap-1">
+                        {spec.name}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => setSelectedSpecialities(prev => prev.filter(i => i !== id))} />
+                      </Badge>
+                    ) : null;
+                  })}
+                </div>
+                <ScrollArea className="h-32 border rounded-md p-2">
+                  <div className="space-y-2">
+                    {specialities?.map(s => (
+                      <div key={s.id} className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={selectedSpecialities.includes(s.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) setSelectedSpecialities(prev => [...prev, s.id]);
+                            else setSelectedSpecialities(prev => prev.filter(i => i !== s.id));
+                          }}
+                        />
+                        <span className="text-sm">{s.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
 
               <div className="flex items-center gap-6">
