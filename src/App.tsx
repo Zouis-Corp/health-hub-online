@@ -24,6 +24,10 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ContactUs from "./pages/ContactUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import RefundPolicy from "./pages/RefundPolicy";
+import CookiePolicy from "./pages/CookiePolicy";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -96,6 +100,10 @@ const App = () => (
                 <Route path="/medicine/:id" element={<MedicineDetail />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/contact" element={<ContactUs />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsConditions />} />
+                <Route path="/refund" element={<RefundPolicy />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
                 
                 {/* Protected Routes - User */}
                 <Route path="/upload-prescription" element={

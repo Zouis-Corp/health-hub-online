@@ -21,37 +21,17 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Company</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Blogs
-                </Link>
-              </li>
-              <li>
                 <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link to="/offers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/conditions" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Offers
                 </Link>
               </li>
               <li>
-                <Link to="/news" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  News
-                </Link>
-              </li>
-              <li>
-                <Link to="/testimonials" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/#reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Testimonials
                 </Link>
               </li>
@@ -63,32 +43,32 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Speciality Medicine</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/conditions?category=anti-cancer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/oncology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Anti Cancer
                 </Link>
               </li>
               <li>
-                <Link to="/conditions?category=blood-disorder" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/hematology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Blood Disorder
                 </Link>
               </li>
               <li>
-                <Link to="/conditions?category=kidney-disease" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/nephrology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Kidney Disease
                 </Link>
               </li>
               <li>
-                <Link to="/conditions?category=heart-disorder" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/cardiology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Heart Disorder
                 </Link>
               </li>
               <li>
-                <Link to="/conditions?category=osteoporosis" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/orthopedics" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Osteoporosis
                 </Link>
               </li>
               <li>
-                <Link to="/conditions?category=hiv-aids" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/super-specialities/infectious-diseases" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   HIV/AIDS
                 </Link>
               </li>
@@ -129,16 +109,6 @@ const Footer = () => {
               <li>
                 <Link to="/refund" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Refund Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/grievance" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Grievance Redressal Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/editorial" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Editorial Policy
                 </Link>
               </li>
               <li>
