@@ -201,7 +201,7 @@ const MedicineDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[100px] sm:pt-[110px] pb-24 md:pb-6">
+      <main className="pt-[120px] sm:pt-[130px] pb-24 md:pb-6">
         {/* Mobile View - Flipkart Style */}
         <div className="md:hidden">
           {/* Image Section with Actions */}
