@@ -37,6 +37,7 @@ const ProductGrid = ({
     filters,
     filteredProducts,
     uniqueBrands,
+    conditions,
     updateFilter,
     resetFilters,
     activeFilterCount,
@@ -73,6 +74,7 @@ const ProductGrid = ({
         <ProductFilters
           filters={filters}
           uniqueBrands={uniqueBrands}
+          conditions={conditions}
           activeFilterCount={activeFilterCount}
           updateFilter={updateFilter}
           resetFilters={resetFilters}

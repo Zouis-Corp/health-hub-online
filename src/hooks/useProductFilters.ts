@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface ProductFilters {
   search: string;
-  priceMin: number | null;
-  priceMax: number | null;
+  conditionId: string | null;
   prescriptionRequired: boolean | null;
   inStockOnly: boolean;
   moleculeId: string | null;
@@ -25,10 +26,15 @@ export interface Product {
   stock: number | null;
 }
 
+export interface Condition {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const defaultFilters: ProductFilters = {
   search: "",
-  priceMin: null,
-  priceMax: null,
+  conditionId: null,
   prescriptionRequired: null,
   inStockOnly: false,
   moleculeId: null,
@@ -38,6 +44,35 @@ const defaultFilters: ProductFilters = {
 
 export function useProductFilters(products: Product[] | undefined) {
   const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
+
+  // Fetch conditions for dropdown
+  const { data: conditions } = useQuery({
+    queryKey: ["filter-conditions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("conditions")
+        .select("id, name, slug")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data as Condition[];
+    },
+  });
+
+  // Fetch product-condition mappings when a condition is selected
+  const { data: conditionProductIds } = useQuery({
+    queryKey: ["condition-products", filters.conditionId],
+    queryFn: async () => {
+      if (!filters.conditionId) return null;
+      const { data, error } = await supabase
+        .from("product_conditions")
+        .select("product_id")
+        .eq("condition_id", filters.conditionId);
+      if (error) throw error;
+      return data.map((p) => p.product_id);
+    },
+    enabled: !!filters.conditionId,
+  });
 
   const filteredProducts = useMemo(() => {
     if (!products) return [];
@@ -55,12 +90,9 @@ export function useProductFilters(products: Product[] | undefined) {
       );
     }
 
-    // Price range filter
-    if (filters.priceMin !== null) {
-      result = result.filter((p) => p.price >= filters.priceMin!);
-    }
-    if (filters.priceMax !== null) {
-      result = result.filter((p) => p.price <= filters.priceMax!);
+    // Condition filter
+    if (filters.conditionId && conditionProductIds) {
+      result = result.filter((p) => conditionProductIds.includes(p.id));
     }
 
     // Prescription filter
@@ -108,7 +140,7 @@ export function useProductFilters(products: Product[] | undefined) {
     }
 
     return result;
-  }, [products, filters]);
+  }, [products, filters, conditionProductIds]);
 
   const uniqueBrands = useMemo(() => {
     if (!products) return [];
@@ -129,8 +161,7 @@ export function useProductFilters(products: Product[] | undefined) {
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.search) count++;
-    if (filters.priceMin !== null) count++;
-    if (filters.priceMax !== null) count++;
+    if (filters.conditionId) count++;
     if (filters.prescriptionRequired !== null) count++;
     if (filters.inStockOnly) count++;
     if (filters.moleculeId) count++;
@@ -142,6 +173,7 @@ export function useProductFilters(products: Product[] | undefined) {
     filters,
     filteredProducts,
     uniqueBrands,
+    conditions: conditions || [],
     updateFilter,
     resetFilters,
     activeFilterCount,
