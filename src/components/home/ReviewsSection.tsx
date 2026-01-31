@@ -1,9 +1,8 @@
-import { Star, ChevronLeft, ChevronRight, Clock, PenLine } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import WriteReviewDialog from "./WriteReviewDialog";
+import InlineReviewForm from "./InlineReviewForm";
 
 // Fallback reviews for when database is empty
 const fallbackReviews = [
@@ -147,15 +146,6 @@ const ReviewsSection = () => {
             </p>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
-            <WriteReviewDialog
-              trigger={
-                <Button variant="outline" size="sm" className="gap-2">
-                  <PenLine className="h-4 w-4" />
-                  <span className="hidden sm:inline">Write a Review</span>
-                  <span className="sm:hidden">Review</span>
-                </Button>
-              }
-            />
             <button
               onClick={() => scroll("left")}
               className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border flex items-center justify-center hover:border-primary hover:text-primary hover:bg-primary/5 transition-all bg-card"
@@ -176,6 +166,9 @@ const ReviewsSection = () => {
           ref={scrollRef}
           className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4"
         >
+          {/* Inline Review Form as first card */}
+          <InlineReviewForm />
+          
           {reviews.map((review) => (
             <div
               key={review.id}
