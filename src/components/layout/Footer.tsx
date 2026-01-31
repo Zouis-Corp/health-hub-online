@@ -38,32 +38,32 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Speciality Medicine</h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/super-specialities/oncology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?speciality=oncology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Anti Cancer
                 </Link>
               </li>
               <li>
-                <Link to="/super-specialities/hematology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?speciality=hematology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Blood Disorder
                 </Link>
               </li>
               <li>
-                <Link to="/super-specialities/nephrology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?speciality=nephrology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Kidney Disease
                 </Link>
               </li>
               <li>
-                <Link to="/super-specialities/cardiology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?speciality=cardiology" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Heart Disorder
                 </Link>
               </li>
               <li>
-                <Link to="/super-specialities/orthopedics" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?speciality=orthopedics" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Osteoporosis
                 </Link>
               </li>
               <li>
-                <Link to="/super-specialities/infectious-diseases" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/shop?condition=hiv-aids" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   HIV/AIDS
                 </Link>
               </li>
