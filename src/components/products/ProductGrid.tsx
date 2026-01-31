@@ -21,6 +21,7 @@ interface ProductGridProps {
   subtitle: string;
   breadcrumbs: { label: string; path?: string }[];
   showSearch?: boolean;
+  initialConditionId?: string | null;
 }
 
 const ProductGrid = ({
@@ -30,6 +31,7 @@ const ProductGrid = ({
   subtitle,
   breadcrumbs,
   showSearch = true,
+  initialConditionId,
 }: ProductGridProps) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
@@ -41,7 +43,7 @@ const ProductGrid = ({
     updateFilter,
     resetFilters,
     activeFilterCount,
-  } = useProductFilters(products);
+  } = useProductFilters(products, initialConditionId);
 
   return (
     <div className="container px-3 sm:px-4 lg:px-8">

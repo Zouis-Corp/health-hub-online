@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/layout/Header";
@@ -7,8 +7,10 @@ import ProductGrid from "@/components/products/ProductGrid";
 
 const ConditionsPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
+  const conditionIdFromQuery = searchParams.get("condition");
 
-  // Fetch condition details if viewing a specific condition
+  // Fetch condition details if viewing a specific condition via slug
   const { data: condition } = useQuery({
     queryKey: ["condition", slug],
     queryFn: async () => {
@@ -25,53 +27,22 @@ const ConditionsPage = () => {
     enabled: !!slug,
   });
 
-  // Fetch products for this condition via junction table
+  // Fetch all medicines (filtering handled by ProductGrid with initialConditionId)
   const { data: products, isLoading } = useQuery({
-    queryKey: ["products-by-condition", slug],
+    queryKey: ["all-medicines-for-conditions"],
     queryFn: async () => {
-      if (!slug || !condition) {
-        // Fetch all products if no specific condition
-        const { data, error } = await supabase
-          .from("medicines")
-          .select("id, name, slug, type, salt_name, brand, price, original_price, prescription_required, image_url, stock")
-          .eq("is_active", true)
-          .order("name");
-        if (error) throw error;
-        return data;
-      }
-
-      // Fetch products linked to this condition
-      const { data: productIds, error: junctionError } = await supabase
-        .from("product_conditions")
-        .select("product_id")
-        .eq("condition_id", condition.id);
-
-      if (junctionError) throw junctionError;
-
-      if (!productIds || productIds.length === 0) {
-        // Fallback to old condition_id field
-        const { data, error } = await supabase
-          .from("medicines")
-          .select("id, name, slug, type, salt_name, brand, price, original_price, prescription_required, image_url, stock")
-          .eq("condition_id", condition.id)
-          .eq("is_active", true)
-          .order("name");
-        if (error) throw error;
-        return data;
-      }
-
-      const ids = productIds.map((p) => p.product_id);
       const { data, error } = await supabase
         .from("medicines")
         .select("id, name, slug, type, salt_name, brand, price, original_price, prescription_required, image_url, stock")
-        .in("id", ids)
         .eq("is_active", true)
         .order("name");
       if (error) throw error;
       return data;
     },
-    enabled: !slug || !!condition,
   });
+
+  // Determine which condition ID to use for initial filter
+  const initialConditionId = conditionIdFromQuery || condition?.id || null;
 
   const title = condition?.name || "Browse by Condition";
   const subtitle = condition?.description || "Find medicines for your specific health needs";
@@ -85,6 +56,7 @@ const ConditionsPage = () => {
           isLoading={isLoading}
           title={title}
           subtitle={subtitle}
+          initialConditionId={initialConditionId}
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Conditions", path: "/conditions" },
