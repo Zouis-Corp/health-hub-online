@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -9,8 +10,15 @@ import DatabaseProductCarousel from "@/components/home/DatabaseProductCarousel";
 import StatsSection from "@/components/home/StatsSection";
 import ReviewsSection from "@/components/home/ReviewsSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import ProductSymbolsGuide from "@/components/ui/ProductSymbolsGuide";
 
 const Index = () => {
+  const [showSymbolsGuide, setShowSymbolsGuide] = useState(false);
+
+  const handleProductSectionVisible = useCallback(() => {
+    setShowSymbolsGuide(true);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -24,6 +32,7 @@ const Index = () => {
           subtitle="Specialty medicines requiring prescription - Quality assured from trusted manufacturers"
           filter="prescription"
           limit={10}
+          onVisible={handleProductSectionVisible}
         />
         <DatabaseProductCarousel
           title="Over-the-Counter Products"
@@ -37,6 +46,7 @@ const Index = () => {
       </main>
       <Footer />
       <MobileBottomNav />
+      <ProductSymbolsGuide trigger={showSymbolsGuide} />
     </div>
   );
 };
