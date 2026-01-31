@@ -10,7 +10,12 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 // Pages
 import Index from "./pages/Index";
-import Conditions from "./pages/Conditions";
+import ConditionsListPage from "./pages/ConditionsListPage";
+import ConditionsPage from "./pages/ConditionsPage";
+import MoleculesPage from "./pages/MoleculesPage";
+import SuperSpecialitiesPage from "./pages/SuperSpecialitiesPage";
+import WellnessPage from "./pages/WellnessPage";
+import AllMedicinesPage from "./pages/AllMedicinesPage";
 import MedicineDetail from "./pages/MedicineDetail";
 import UploadPrescription from "./pages/UploadPrescription";
 import Cart from "./pages/Cart";
@@ -25,6 +30,8 @@ import ImportedMedicine from "./pages/ImportedMedicine";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminConditions from "./pages/admin/AdminConditions";
 import AdminMedicines from "./pages/admin/AdminMedicines";
+import AdminMolecules from "./pages/admin/AdminMolecules";
+import AdminSuperSpecialities from "./pages/admin/AdminSuperSpecialities";
 import AdminPrescriptions from "./pages/admin/AdminPrescriptions";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -76,7 +83,17 @@ const App = () => (
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
-                <Route path="/conditions" element={<Conditions />} />
+                
+                {/* Browsing Routes */}
+                <Route path="/conditions" element={<ConditionsListPage />} />
+                <Route path="/conditions/:slug" element={<ConditionsPage />} />
+                <Route path="/molecules" element={<MoleculesPage />} />
+                <Route path="/molecules/:slug" element={<MoleculesPage />} />
+                <Route path="/super-specialities" element={<SuperSpecialitiesPage />} />
+                <Route path="/super-specialities/:slug" element={<SuperSpecialitiesPage />} />
+                <Route path="/wellness" element={<WellnessPage />} />
+                <Route path="/medicines" element={<AllMedicinesPage />} />
+                
                 <Route path="/medicine/:id" element={<MedicineDetail />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/patient-assistance" element={<PatientAssistance />} />
@@ -114,6 +131,16 @@ const App = () => (
                 <Route path="/admin/medicines" element={
                   <ProtectedRoute requireAdmin>
                     <AdminMedicines />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/molecules" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminMolecules />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/super-specialities" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminSuperSpecialities />
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/prescriptions" element={

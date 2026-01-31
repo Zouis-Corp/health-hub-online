@@ -129,7 +129,7 @@ const DatabaseProductCarousel = ({
               <ChevronLeft className="h-5 w-5" />
             </button>
             <Link 
-              to="/conditions" 
+              to="/medicines" 
               className="text-sm text-primary hover:text-primary/80 px-3 font-semibold transition-colors"
             >
               View all
@@ -166,7 +166,7 @@ const DatabaseProductCarousel = ({
         {/* Mobile: View All Button */}
         <div className="mt-4 md:hidden">
           <Link 
-            to="/conditions" 
+            to="/medicines" 
             className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-primary/10 hover:bg-primary/15 text-primary font-semibold text-sm rounded-xl transition-colors border border-primary/20"
           >
             View All Products

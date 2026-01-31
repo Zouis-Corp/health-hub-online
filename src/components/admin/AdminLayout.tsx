@@ -14,7 +14,9 @@ import {
   Menu,
   X,
   Ticket,
-  Truck
+  Truck,
+  FlaskConical,
+  Stethoscope
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -35,8 +37,10 @@ const AdminLayout = ({ children, title, description }: AdminLayoutProps) => {
   // Admins have access to everything
   const navItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    ...(isAdmin ? [{ name: "Conditions", path: "/admin/conditions", icon: Heart }] : []),
+    ...(isAdmin ? [{ name: "Conditions", path: "/admin/conditions", icon: Stethoscope }] : []),
     ...(isAdmin ? [{ name: "Medicines", path: "/admin/medicines", icon: Pill }] : []),
+    ...(isAdmin ? [{ name: "Molecules", path: "/admin/molecules", icon: FlaskConical }] : []),
+    ...(isAdmin ? [{ name: "Super Specialities", path: "/admin/super-specialities", icon: Heart }] : []),
     { name: "Prescriptions", path: "/admin/prescriptions", icon: FileText },
     { name: "Orders", path: "/admin/orders", icon: ShoppingBag },
     ...(isAdmin ? [{ name: "Users", path: "/admin/users", icon: Users }] : []),

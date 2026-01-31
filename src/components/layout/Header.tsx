@@ -38,25 +38,25 @@ const superSpecialityItems = [
   },
   { 
     name: "By Super Speciality", 
-    path: "/conditions?filter=specialty", 
+    path: "/super-specialities", 
     icon: Heart,
     description: "Oncology, Cardiology, Neurology & more" 
   },
   { 
     name: "By Molecules", 
-    path: "/conditions?filter=molecules", 
+    path: "/molecules", 
     icon: FlaskConical,
     description: "Search by active pharmaceutical ingredients" 
   },
   { 
     name: "All Medicines", 
-    path: "/conditions?filter=all", 
+    path: "/medicines", 
     icon: Pill,
     description: "View our complete medicine catalog" 
   },
   { 
     name: "Wellness", 
-    path: "/conditions?filter=wellness", 
+    path: "/wellness", 
     icon: ListTree,
     description: "Supplements, vitamins & health products" 
   },
