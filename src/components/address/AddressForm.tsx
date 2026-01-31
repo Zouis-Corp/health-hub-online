@@ -5,6 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const addressSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -12,7 +21,7 @@ const addressSchema = z.object({
   address_line_1: z.string().min(5, "Address Line 1 is required").max(200),
   address_line_2: z.string().max(200).optional(),
   city: z.string().min(2, "City is required").max(100),
-  state: z.string().min(2, "State is required").max(100),
+  state: z.string().min(1, "Please select a state"),
   pincode: z.string().min(6, "Pincode must be 6 digits").max(6),
   landmark: z.string().max(200).optional(),
   is_default: z.boolean().optional(),
@@ -50,6 +59,20 @@ const AddressForm = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Fetch states from delivery_fees table
+  const { data: states, isLoading: statesLoading } = useQuery({
+    queryKey: ["delivery-states"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("delivery_fees")
+        .select("state_name, delivery_fee, free_delivery_minimum")
+        .eq("is_active", true)
+        .order("state_name", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -65,6 +88,11 @@ const AddressForm = ({
       });
     }
   }, [initialData]);
+
+  // Get selected state's delivery info
+  const selectedStateInfo = states?.find(
+    (s) => s.state_name.toLowerCase() === formData.state.toLowerCase()
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,15 +204,43 @@ const AddressForm = ({
           <Label htmlFor="state" className="text-xs sm:text-sm">
             State <span className="text-destructive">*</span>
           </Label>
-          <Input
-            id="state"
-            placeholder="State"
-            className="h-9 sm:h-10 rounded-lg text-sm"
+          <Select
             value={formData.state}
-            onChange={(e) => updateField("state", e.target.value)}
-          />
+            onValueChange={(value) => updateField("state", value)}
+          >
+            <SelectTrigger className="h-9 sm:h-10 rounded-lg text-sm bg-background">
+              <SelectValue placeholder={statesLoading ? "Loading..." : "Select State"} />
+            </SelectTrigger>
+            <SelectContent className="bg-background border border-border z-50 max-h-[300px]">
+              {states?.map((state) => (
+                <SelectItem key={state.state_name} value={state.state_name}>
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <span>{state.state_name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ₹{state.delivery_fee}
+                      {state.free_delivery_minimum > 0 && (
+                        <span className="text-secondary ml-1">
+                          (Free ₹{state.free_delivery_minimum}+)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.state && (
             <p className="text-[10px] sm:text-xs text-destructive">{errors.state}</p>
+          )}
+          {selectedStateInfo && (
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Delivery: ₹{selectedStateInfo.delivery_fee}
+              {selectedStateInfo.free_delivery_minimum > 0 && (
+                <span className="text-secondary">
+                  {" "}• Free on orders ₹{selectedStateInfo.free_delivery_minimum}+
+                </span>
+              )}
+            </p>
           )}
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
