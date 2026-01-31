@@ -663,7 +663,7 @@ const UploadPrescription = () => {
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    <div className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground font-medium transition-colors">
+                    <div className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 border-2 border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground font-medium transition-colors">
                       <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       Browse Images
                     </div>
