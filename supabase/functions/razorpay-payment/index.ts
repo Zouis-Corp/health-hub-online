@@ -29,6 +29,23 @@ interface PaymentFailedRequest {
 
 type RequestBody = CreateOrderRequest | VerifyPaymentRequest | PaymentFailedRequest;
 
+// Non-blocking email sender - fire and forget
+function sendEmailAsync(
+  supabase: any,
+  type: string,
+  userId: string,
+  orderId: string
+) {
+  // Don't await - let it run in background
+  supabase.functions.invoke('send-notification-email', {
+    body: { type, userId, orderId },
+  }).then(() => {
+    console.log(`[razorpay-payment] ${type} email sent for order: ${orderId}`);
+  }).catch((emailError: any) => {
+    console.error(`[razorpay-payment] Failed to send ${type} email:`, emailError);
+  });
+}
+
 serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -61,7 +78,7 @@ serve(async (req: Request) => {
         throw new Error('Missing required fields: orderId and amount');
       }
 
-      // Verify order exists in database
+      // Verify order exists
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .select('id, total_amount, status, user_id')
@@ -76,17 +93,20 @@ serve(async (req: Request) => {
         throw new Error('Order is not approved for payment');
       }
 
-      // Get user details
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('name, phone')
-        .eq('id', order.user_id)
-        .single();
+      // Fetch profile and user email in parallel for speed
+      const [profileData, userData] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('name, phone')
+          .eq('id', order.user_id)
+          .single(),
+        supabase.auth.admin.getUserById(order.user_id),
+      ]);
 
-      const { data: userData } = await supabase.auth.admin.getUserById(order.user_id);
-      const userEmail = userData?.user?.email;
+      const profile = profileData.data;
+      const userEmail = userData.data?.user?.email;
 
-      // Create Razorpay order - use btoa for base64 encoding
+      // Create Razorpay order
       const credentials = `${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`;
       const authHeader = `Basic ${btoa(credentials)}`;
       
@@ -142,7 +162,7 @@ serve(async (req: Request) => {
         throw new Error('Missing required payment verification fields');
       }
 
-      // Verify signature
+      // Verify signature first (fast cryptographic operation)
       const message = `${razorpayOrderId}|${razorpayPaymentId}`;
       const encoder = new TextEncoder();
       const key = await crypto.subtle.importKey(
@@ -164,44 +184,29 @@ serve(async (req: Request) => {
 
       console.log(`[razorpay-payment] Payment verified for order: ${orderId}`);
 
-      // Get order user_id for email
-      const { data: order } = await supabase
-        .from('orders')
-        .select('user_id, total_amount')
-        .eq('id', orderId)
-        .single();
-
-      // Update order status
-      const { error: updateError } = await supabase
+      // Update order status immediately - this is the critical path
+      const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')
         .update({
           payment_status: 'paid',
           status: 'processing',
           notes: `Razorpay Payment ID: ${razorpayPaymentId}`,
         })
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select('user_id')
+        .single();
 
       if (updateError) {
         console.error('[razorpay-payment] Failed to update order:', updateError);
         throw new Error('Failed to update order status');
       }
 
-      // Send confirmation email
-      if (order) {
-        try {
-          await supabase.functions.invoke('send-notification-email', {
-            body: {
-              type: 'payment-received',
-              userId: order.user_id,
-              orderId: orderId,
-            },
-          });
-          console.log('[razorpay-payment] Confirmation email sent');
-        } catch (emailError) {
-          console.error('[razorpay-payment] Failed to send email:', emailError);
-        }
+      // Fire email in background - don't wait for it
+      if (updatedOrder?.user_id) {
+        sendEmailAsync(supabase, 'payment-received', updatedOrder.user_id, orderId);
       }
 
+      // Return success immediately
       return new Response(
         JSON.stringify({ success: true, message: 'Payment verified successfully' }),
         { 
@@ -220,42 +225,27 @@ serve(async (req: Request) => {
 
       console.log(`[razorpay-payment] Payment failed for order: ${orderId}, reason: ${errorMessage}`);
 
-      // Get order user_id for email
-      const { data: order } = await supabase
-        .from('orders')
-        .select('user_id')
-        .eq('id', orderId)
-        .single();
-
-      // Update order payment status to failed
-      const { error: updateError } = await supabase
+      // Update order status immediately
+      const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')
         .update({
           payment_status: 'failed',
           notes: `Payment failed: ${errorMessage || 'Unknown error'}`,
         })
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .select('user_id')
+        .single();
 
       if (updateError) {
         console.error('[razorpay-payment] Failed to update order:', updateError);
       }
 
-      // Send payment failed email
-      if (order) {
-        try {
-          await supabase.functions.invoke('send-notification-email', {
-            body: {
-              type: 'payment-failed',
-              userId: order.user_id,
-              orderId: orderId,
-            },
-          });
-          console.log('[razorpay-payment] Payment failed email sent');
-        } catch (emailError) {
-          console.error('[razorpay-payment] Failed to send email:', emailError);
-        }
+      // Fire email in background - don't wait for it
+      if (updatedOrder?.user_id) {
+        sendEmailAsync(supabase, 'payment-failed', updatedOrder.user_id, orderId);
       }
 
+      // Return success immediately
       return new Response(
         JSON.stringify({ success: true, message: 'Payment failure recorded' }),
         { 

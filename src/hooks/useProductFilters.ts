@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,8 +44,9 @@ const defaultFilters: ProductFilters = {
 
 export function useProductFilters(products: Product[] | undefined) {
   const [filters, setFilters] = useState<ProductFilters>(defaultFilters);
+  const [isPending, startTransition] = useTransition();
 
-  // Fetch conditions for dropdown
+  // Fetch conditions for dropdown - with stale time for caching
   const { data: conditions } = useQuery({
     queryKey: ["filter-conditions"],
     queryFn: async () => {
@@ -57,6 +58,7 @@ export function useProductFilters(products: Product[] | undefined) {
       if (error) throw error;
       return data as Condition[];
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Fetch product-condition mappings when a condition is selected
@@ -72,6 +74,7 @@ export function useProductFilters(products: Product[] | undefined) {
       return data.map((p) => p.product_id);
     },
     enabled: !!filters.conditionId,
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
   });
 
   const filteredProducts = useMemo(() => {
@@ -147,16 +150,21 @@ export function useProductFilters(products: Product[] | undefined) {
     return [...new Set(products.map((p) => p.brand).filter(Boolean))] as string[];
   }, [products]);
 
-  const updateFilter = <K extends keyof ProductFilters>(
+  const updateFilter = useCallback(<K extends keyof ProductFilters>(
     key: K,
     value: ProductFilters[K]
   ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+    // Use startTransition for non-urgent updates to prevent blocking
+    startTransition(() => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    });
+  }, []);
 
-  const resetFilters = () => {
-    setFilters(defaultFilters);
-  };
+  const resetFilters = useCallback(() => {
+    startTransition(() => {
+      setFilters(defaultFilters);
+    });
+  }, []);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -177,5 +185,6 @@ export function useProductFilters(products: Product[] | undefined) {
     updateFilter,
     resetFilters,
     activeFilterCount,
+    isFiltering: isPending,
   };
 }
