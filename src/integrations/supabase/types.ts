@@ -594,6 +594,54 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          avatar_bg: string | null
+          created_at: string
+          id: string
+          location: string | null
+          name: string
+          rating: number
+          rejection_reason: string | null
+          review_text: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_bg?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name: string
+          rating: number
+          rejection_reason?: string | null
+          review_text: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_bg?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name?: string
+          rating?: number
+          rejection_reason?: string | null
+          review_text?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       super_specialities: {
         Row: {
           created_at: string | null

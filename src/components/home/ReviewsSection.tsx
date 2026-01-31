@@ -1,57 +1,89 @@
-import { Star, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Clock, PenLine } from "lucide-react";
 import { useRef, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import WriteReviewDialog from "./WriteReviewDialog";
 
-const reviews = [
+// Fallback reviews for when database is empty
+const fallbackReviews = [
   {
-    id: 1,
+    id: "1",
     name: "Amreen Taj",
     rating: 5,
-    avatar: "A",
-    avatarBg: "bg-teal-500",
-    review: "Srinidhi R helped me resolve my long-pending issue with remarkable ease and professionalism. Srinidhi was patient, efficient, and ensured everything was sorted out quickly. Truly one of the best employees at TabletKart — thank you, Srinidhi, for your outstanding support!",
-    timeAgo: "3 months ago",
+    avatar_bg: "bg-teal-500",
+    review_text: "Srinidhi R helped me resolve my long-pending issue with remarkable ease and professionalism. Truly one of the best employees at TabletKart!",
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 2,
-    name: "SVN PRASANNA",
+    id: "2",
+    name: "SVN Prasanna",
     rating: 5,
-    avatar: "S",
-    avatarBg: "bg-purple-500",
-    review: "Good response from Mr. Srinidhi, delivery also made in time",
-    timeAgo: "3 months ago",
+    avatar_bg: "bg-purple-500",
+    review_text: "Good response from Mr. Srinidhi, delivery also made in time",
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 3,
+    id: "3",
     name: "Sri Hari Edlaw",
     rating: 5,
-    avatar: "S",
-    avatarBg: "bg-blue-500",
-    review: "TabletKart was lightning fast to deliver my Bosutinib tablets which were required by me urgently. Hat's off to it. I am sure that it will continue to do it in future too.",
-    timeAgo: "3 months ago",
+    avatar_bg: "bg-blue-500",
+    review_text: "TabletKart was lightning fast to deliver my Bosutinib tablets which were required by me urgently. Hat's off to it.",
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 4,
+    id: "4",
     name: "Shirshendu Sarkar",
     rating: 5,
-    avatar: "S",
-    avatarBg: "bg-gray-400",
-    review: "Very much satisfied with the service..absolutely genuine product with great discounts 😊😊",
-    timeAgo: "3 months ago",
+    avatar_bg: "bg-gray-400",
+    review_text: "Very much satisfied with the service..absolutely genuine product with great discounts 😊😊",
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 5,
+    id: "5",
     name: "Aafreen Khan",
     rating: 5,
-    avatar: "A",
-    avatarBg: "bg-pink-500",
-    review: "Great Experience with Niloy.. Too courteous throughout with timely delivery.. Well done 😊",
-    timeAgo: "2 months ago",
+    avatar_bg: "bg-pink-500",
+    review_text: "Great Experience with Niloy.. Too courteous throughout with timely delivery.. Well done 😊",
+    created_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
+
+const getTimeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffInDays < 1) return "Today";
+  if (diffInDays === 1) return "Yesterday";
+  if (diffInDays < 7) return `${diffInDays} days ago`;
+  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} week${diffInDays >= 14 ? 's' : ''} ago`;
+  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} month${diffInDays >= 60 ? 's' : ''} ago`;
+  return `${Math.floor(diffInDays / 365)} year${diffInDays >= 730 ? 's' : ''} ago`;
+};
 
 const ReviewsSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch approved reviews from database
+  const { data: dbReviews } = useQuery({
+    queryKey: ["approved-reviews"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Use database reviews if available, otherwise use fallback
+  const reviews = dbReviews && dbReviews.length > 0 ? dbReviews : fallbackReviews;
 
   const scroll = useCallback((direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -60,7 +92,6 @@ const ReviewsSection = () => {
       const maxScroll = container.scrollWidth - container.clientWidth;
       
       if (direction === "right" && container.scrollLeft >= maxScroll - 10) {
-        // Reset to beginning when reaching the end
         container.scrollTo({ left: 0, behavior: "smooth" });
       } else {
         container.scrollBy({
@@ -71,17 +102,15 @@ const ReviewsSection = () => {
     }
   }, []);
 
-  // Auto-slide functionality
   useEffect(() => {
     const startAutoScroll = () => {
       autoScrollRef.current = setInterval(() => {
         scroll("right");
-      }, 4000); // Slide every 4 seconds
+      }, 4000);
     };
 
     startAutoScroll();
 
-    // Pause on hover
     const container = scrollRef.current;
     const handleMouseEnter = () => {
       if (autoScrollRef.current) {
@@ -105,7 +134,7 @@ const ReviewsSection = () => {
   }, [scroll]);
 
   return (
-    <section className="py-8 md:py-12 bg-background">
+    <section id="reviews" className="py-8 md:py-12 bg-background scroll-mt-32">
       <div className="container px-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 md:mb-8">
@@ -118,13 +147,21 @@ const ReviewsSection = () => {
             </p>
           </div>
           <div className="flex items-center gap-2 md:gap-3">
+            <WriteReviewDialog
+              trigger={
+                <Button variant="outline" size="sm" className="gap-2">
+                  <PenLine className="h-4 w-4" />
+                  <span className="hidden sm:inline">Write a Review</span>
+                  <span className="sm:hidden">Review</span>
+                </Button>
+              }
+            />
             <button
               onClick={() => scroll("left")}
               className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border flex items-center justify-center hover:border-primary hover:text-primary hover:bg-primary/5 transition-all bg-card"
             >
               <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
             </button>
-            <span className="text-xs md:text-sm text-primary font-semibold px-1 md:px-2">View all</span>
             <button
               onClick={() => scroll("right")}
               className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border flex items-center justify-center hover:border-primary hover:text-primary hover:bg-primary/5 transition-all bg-card"
@@ -144,16 +181,14 @@ const ReviewsSection = () => {
               key={review.id}
               className="flex-shrink-0 w-[260px] sm:w-[280px] md:w-[300px] lg:w-[320px]"
             >
-              {/* Card Container - Similar to Why TabletKart cards */}
               <div className="bg-card border border-border rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                 {/* Header with Avatar and Google Icon */}
                 <div className="flex items-center justify-between mb-3 md:mb-4">
-                  {/* Avatar and Name */}
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <div
-                      className={`w-10 h-10 md:w-12 md:h-12 ${review.avatarBg} rounded-xl md:rounded-2xl flex items-center justify-center text-white font-semibold text-sm md:text-base shadow-sm`}
+                      className={`w-10 h-10 md:w-12 md:h-12 ${review.avatar_bg || 'bg-primary'} rounded-xl md:rounded-2xl flex items-center justify-center text-white font-semibold text-sm md:text-base shadow-sm`}
                     >
-                      {review.avatar}
+                      {review.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <p className="font-semibold text-foreground text-xs md:text-sm line-clamp-1">
@@ -194,14 +229,14 @@ const ReviewsSection = () => {
 
                 {/* Review Text */}
                 <p className="text-xs md:text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-5">
-                  {review.review}
+                  {review.review_text}
                 </p>
 
                 {/* Timestamp */}
                 <div className="flex items-center gap-1.5 mt-3 md:mt-4 pt-3 border-t border-border">
                   <Clock className="h-3 w-3 md:h-3.5 md:w-3.5 text-muted-foreground" />
                   <span className="text-[10px] md:text-xs text-muted-foreground">
-                    {review.timeAgo}
+                    {getTimeAgo(review.created_at)}
                   </span>
                 </div>
               </div>
