@@ -26,7 +26,7 @@ const SpecialitiesListPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[100px] sm:pt-[110px] pb-20 sm:pb-6">
+      <main className="pt-[120px] sm:pt-[130px] pb-20 sm:pb-6">
         <div className="container px-3 sm:px-4 lg:px-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -141,7 +141,7 @@ const SpecialityDetailPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-[100px] sm:pt-[110px] pb-20 sm:pb-6">
+      <main className="pt-[120px] sm:pt-[130px] pb-20 sm:pb-6">
         <ProductGrid
           products={products as any}
           isLoading={isLoading || !speciality}

@@ -7,7 +7,8 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container px-4 py-8 md:py-12">
+      <main className="pt-[120px] sm:pt-[130px] pb-20 sm:pb-6">
+        <div className="container px-4">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <Link to="/" className="hover:text-primary">Home</Link>
@@ -94,6 +95,7 @@ const PrivacyPolicy = () => {
               </p>
             </section>
           </div>
+        </div>
         </div>
       </main>
       <Footer />
