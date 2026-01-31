@@ -858,7 +858,7 @@ const Dashboard = () => {
                                     Placed on {format(new Date(order.created_at), "MMM d, yyyy")}
                                   </p>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
                                   {canPay && (
                                     <Button 
                                       size="sm" 
@@ -878,9 +878,31 @@ const Dashboard = () => {
                                     className="gap-1.5 rounded-lg text-xs"
                                     onClick={() => toggleOrderExpand(order.id)}
                                   >
-                                    {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                                    {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                                     {isExpanded ? "Hide" : "Details"}
                                   </Button>
+                                  {order.prescriptions && order.prescriptions.length > 0 && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1.5 rounded-lg text-xs"
+                                      onClick={() => viewPrescription(order.prescriptions[0].file_url)}
+                                    >
+                                      <FileText className="h-3.5 w-3.5" />
+                                      View Rx
+                                    </Button>
+                                  )}
+                                  {order.payment_status === "paid" && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1.5 rounded-lg text-xs"
+                                      onClick={() => printReceipt(order)}
+                                    >
+                                      <Printer className="h-3.5 w-3.5" />
+                                      E-Receipt
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
 
@@ -978,20 +1000,6 @@ const Dashboard = () => {
                                   </div>
                                 )}
 
-                                {/* Print Receipt Button - Show only for paid orders */}
-                                {order.payment_status === "paid" && (
-                                  <div className="mt-4 flex justify-end">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="gap-1.5 text-xs"
-                                      onClick={() => printReceipt(order)}
-                                    >
-                                      <Printer className="h-3.5 w-3.5" />
-                                      Print E-Receipt
-                                    </Button>
-                                  </div>
-                                )}
                               </div>
                             )}
 
@@ -1041,20 +1049,6 @@ const Dashboard = () => {
                               </div>
                             )}
 
-                            {/* View Prescription Button */}
-                            {order.prescriptions && order.prescriptions.length > 0 && (
-                              <div className="border-t border-border p-3 flex justify-end">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="gap-1.5 text-xs"
-                                  onClick={() => viewPrescription(order.prescriptions![0].file_url)}
-                                >
-                                  <Image className="h-3.5 w-3.5" />
-                                  View Prescription
-                                </Button>
-                              </div>
-                            )}
                           </div>
                         );
                       })}
