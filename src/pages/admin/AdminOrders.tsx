@@ -669,7 +669,12 @@ const AdminOrders = () => {
               <Button variant="outline" size="sm" className="gap-2">
                 <Filter className="h-4 w-4" />
                 Date Filter
-                {filterType !== "none" && <Badge variant="secondary" className="ml-1">{filterType === "single" ? format(singleDate!, "MMM d") : `${format(dateFrom!, "MMM d")} - ${format(dateTo!, "MMM d")}`}</Badge>}
+                {filterType === "single" && singleDate && (
+                  <Badge variant="secondary" className="ml-1">{format(singleDate, "MMM d")}</Badge>
+                )}
+                {filterType === "range" && dateFrom && dateTo && (
+                  <Badge variant="secondary" className="ml-1">{format(dateFrom, "MMM d")} - {format(dateTo, "MMM d")}</Badge>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-4" align="start">
