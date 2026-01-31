@@ -16,6 +16,7 @@ import MoleculesPage from "./pages/MoleculesPage";
 import SuperSpecialitiesPage from "./pages/SuperSpecialitiesPage";
 import WellnessPage from "./pages/WellnessPage";
 import AllMedicinesPage from "./pages/AllMedicinesPage";
+import ShopPage from "./pages/ShopPage";
 import MedicineDetail from "./pages/MedicineDetail";
 import UploadPrescription from "./pages/UploadPrescription";
 import Cart from "./pages/Cart";
@@ -88,6 +89,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 
                 {/* Browsing Routes */}
+                <Route path="/shop" element={<ShopPage />} />
                 <Route path="/conditions" element={<ConditionsListPage />} />
                 <Route path="/conditions/:slug" element={<ConditionsPage />} />
                 <Route path="/molecules" element={<MoleculesPage />} />
