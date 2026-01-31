@@ -40,6 +40,7 @@ import AdminPrescriptions from "./pages/admin/AdminPrescriptions";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminReviews from "./pages/admin/AdminReviews";
 import AdminDeliveryFees from "./pages/admin/AdminDeliveryFees";
 
 const queryClient = new QueryClient();
@@ -174,6 +175,11 @@ const App = () => (
                 <Route path="/admin/delivery-fees" element={
                   <ProtectedRoute requireAdmin>
                     <AdminDeliveryFees />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/reviews" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminReviews />
                   </ProtectedRoute>
                 } />
                 
