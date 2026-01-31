@@ -41,6 +41,7 @@ const ProductGrid = ({
     updateFilter,
     resetFilters,
     activeFilterCount,
+    isFiltering,
   } = useProductFilters(products);
 
   return (
@@ -138,9 +139,14 @@ const ProductGrid = ({
           </div>
 
           {/* Results Count */}
-          <p className="text-sm text-muted-foreground mb-4">
-            Showing {filteredProducts.length} products
-          </p>
+          <div className="flex items-center gap-2 mb-4">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredProducts.length} products
+            </p>
+            {isFiltering && (
+              <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            )}
+          </div>
 
           {/* Products Grid */}
           {isLoading ? (

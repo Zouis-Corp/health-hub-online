@@ -330,6 +330,13 @@ const Checkout = () => {
           color: "#7C3AED",
         },
         handler: async (response: any) => {
+          // Optimistically update UI immediately
+          clearCart();
+          toast({
+            title: "Payment Successful! 🎉",
+            description: "Verifying your payment...",
+          });
+          
           try {
             const verifyResult = await supabase.functions.invoke("razorpay-payment", {
               body: {
@@ -345,16 +352,16 @@ const Checkout = () => {
               throw new Error(verifyResult.data?.error || "Payment verification failed");
             }
 
-            clearCart();
+            // Invalidate queries and navigate
             queryClient.invalidateQueries({ queryKey: ["user-orders"] });
             toast({
-              title: "Payment Successful! 🎉",
+              title: "Order Confirmed! 🎉",
               description: "Your order is now being processed.",
             });
             navigate("/dashboard");
           } catch (verifyError: any) {
             // Send payment failed notification
-            await supabase.functions.invoke("razorpay-payment", {
+            supabase.functions.invoke("razorpay-payment", {
               body: {
                 action: "payment-failed",
                 orderId: orderId,
