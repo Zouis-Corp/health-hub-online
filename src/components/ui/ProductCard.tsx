@@ -89,7 +89,7 @@ const ProductCard = ({
       className={`group relative bg-card rounded-2xl border border-border overflow-visible ${className}`}
     >
       {/* Top Section - Image Area */}
-      <div className="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-cyan-950/30 p-4 sm:p-5 rounded-t-2xl overflow-visible">
+      <div className="relative bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-cyan-950/30 rounded-t-2xl overflow-hidden">
         {/* Badges Row */}
         <div className="absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 flex items-start justify-between z-10">
           {/* Left - Discount */}
