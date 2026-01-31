@@ -20,6 +20,7 @@ import {
   Eye,
   RefreshCw,
   Download,
+  Printer,
   Clock,
   CheckCircle,
   Truck,
@@ -82,14 +83,14 @@ const Dashboard = () => {
   const [reuploadFiles, setReuploadFiles] = useState<File[]>([]);
   const [isReuploadSubmitting, setIsReuploadSubmitting] = useState(false);
 
-  // Fetch orders with prescriptions
+  // Fetch orders with prescriptions and address
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ["user-orders"],
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
         .from("orders")
-        .select("*, order_items(id, quantity, price, medicines(name)), prescriptions(id, file_url, status)")
+        .select("*, order_items(id, quantity, price, medicines(name)), prescriptions(id, file_url, status), addresses(name, phone, address_line_1, address_line_2, city, state, pincode)")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -442,6 +443,126 @@ const Dashboard = () => {
     return orderNumber ? `#${orderNumber}` : "N/A";
   };
 
+  // Print e-receipt function
+  const printReceipt = (order: any) => {
+    const orderItems = order.order_items || [];
+    const subtotal = orderItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = order.delivery_fee || 0;
+    const discount = order.discount_amount || 0;
+    const address = order.addresses;
+
+    const receiptContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>TabletKart - Receipt ${formatOrderNumber(order.order_number)}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
+          .header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #ccc; padding-bottom: 15px; }
+          .logo { font-size: 24px; font-weight: bold; }
+          .logo .tablet { color: #7C3AED; }
+          .logo .kart { color: #22C55E; }
+          .order-info { margin-bottom: 15px; }
+          .order-info p { font-size: 12px; color: #666; margin: 3px 0; }
+          .order-number { font-size: 16px; font-weight: bold; color: #333 !important; }
+          .items { border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; margin: 15px 0; }
+          .item { display: flex; justify-content: space-between; margin: 8px 0; font-size: 13px; }
+          .item-name { flex: 1; }
+          .item-qty { color: #666; margin-left: 10px; }
+          .item-price { font-weight: 500; min-width: 70px; text-align: right; }
+          .totals { margin: 15px 0; }
+          .total-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 13px; }
+          .total-row.discount { color: #22C55E; }
+          .total-row.grand-total { font-weight: bold; font-size: 16px; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; }
+          .address { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 12px; }
+          .address-title { font-weight: bold; margin-bottom: 5px; }
+          .footer { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px dashed #ccc; font-size: 11px; color: #666; }
+          .status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; text-transform: capitalize; }
+          .status-paid { background: #dcfce7; color: #16a34a; }
+          .status-pending { background: #fef3c7; color: #d97706; }
+          @media print { body { padding: 10px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo"><span class="tablet">tablet</span><span class="kart">kart</span>.in</div>
+          <p style="font-size: 12px; color: #666; margin-top: 5px;">E-Receipt</p>
+        </div>
+        
+        <div class="order-info">
+          <p class="order-number">Order ${formatOrderNumber(order.order_number)}</p>
+          <p>Date: ${format(new Date(order.created_at), "MMM d, yyyy h:mm a")}</p>
+          <p>Status: <span class="status ${order.payment_status === 'paid' ? 'status-paid' : 'status-pending'}">${order.payment_status}</span></p>
+        </div>
+
+        <div class="items">
+          ${orderItems.map((item: any) => `
+            <div class="item">
+              <span class="item-name">${item.medicines?.name || 'Medicine'}</span>
+              <span class="item-qty">x${item.quantity}</span>
+              <span class="item-price">₹${(item.price * item.quantity).toLocaleString()}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span>₹${subtotal.toLocaleString()}</span>
+          </div>
+          ${deliveryFee > 0 ? `
+            <div class="total-row">
+              <span>Delivery Fee</span>
+              <span>₹${deliveryFee.toLocaleString()}</span>
+            </div>
+          ` : `
+            <div class="total-row" style="color: #22C55E;">
+              <span>Delivery</span>
+              <span>FREE</span>
+            </div>
+          `}
+          ${discount > 0 ? `
+            <div class="total-row discount">
+              <span>Discount</span>
+              <span>-₹${discount.toLocaleString()}</span>
+            </div>
+          ` : ''}
+          <div class="total-row grand-total">
+            <span>Total</span>
+            <span>₹${order.total_amount.toLocaleString()}</span>
+          </div>
+        </div>
+
+        ${address ? `
+          <div class="address">
+            <p class="address-title">Delivery Address</p>
+            <p>${address.name}</p>
+            <p>${address.address_line_1}${address.address_line_2 ? ', ' + address.address_line_2 : ''}</p>
+            <p>${address.city}, ${address.state} - ${address.pincode}</p>
+            <p>Phone: ${address.phone}</p>
+          </div>
+        ` : ''}
+
+        <div class="footer">
+          <p>Thank you for shopping with TabletKart!</p>
+          <p style="margin-top: 5px;">For support: +91 98948 18002</p>
+          <p style="margin-top: 5px;">www.tabletkart.in</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank', 'width=450,height=600');
+    if (printWindow) {
+      printWindow.document.write(receiptContent);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
+  };
+
   const viewPrescription = async (fileUrl: string) => {
     try {
       const { data } = await supabase.storage
@@ -785,27 +906,92 @@ const Dashboard = () => {
                             </div>
 
                             {/* Expanded Items */}
-                            {isExpanded && orderItems.length > 0 && (
+                            {isExpanded && (
                               <div className="border-t border-border bg-muted/30 p-4">
-                                <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                                  <ShoppingBag className="h-4 w-4" />
-                                  Order Items
-                                </p>
-                                <div className="space-y-2">
-                                  {orderItems.map((item: any, index: number) => (
-                                    <div key={index} className="flex items-center justify-between bg-card rounded-lg p-3 border border-border">
-                                      <div>
-                                        <p className="font-medium text-sm">{item.medicines?.name || "Medicine"}</p>
-                                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                                      </div>
-                                      <p className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</p>
+                                {/* Order Items */}
+                                {orderItems.length > 0 && (
+                                  <>
+                                    <p className="text-sm font-medium mb-3 flex items-center gap-2">
+                                      <ShoppingBag className="h-4 w-4" />
+                                      Order Items
+                                    </p>
+                                    <div className="space-y-2 mb-4">
+                                      {orderItems.map((item: any, index: number) => (
+                                        <div key={index} className="flex items-center justify-between bg-card rounded-lg p-3 border border-border">
+                                          <div>
+                                            <p className="font-medium text-sm">{item.medicines?.name || "Medicine"}</p>
+                                            <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                                          </div>
+                                          <p className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</p>
+                                        </div>
+                                      ))}
                                     </div>
-                                  ))}
+                                  </>
+                                )}
+
+                                {/* Price Breakdown */}
+                                <div className="bg-card rounded-lg p-4 border border-border space-y-2">
+                                  <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span>₹{orderItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0).toLocaleString()}</span>
+                                  </div>
+                                  
+                                  {(order.delivery_fee || 0) > 0 ? (
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-muted-foreground">Delivery Fee</span>
+                                      <span>₹{(order.delivery_fee || 0).toLocaleString()}</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex justify-between text-sm text-green-600">
+                                      <span>Delivery</span>
+                                      <span>FREE</span>
+                                    </div>
+                                  )}
+                                  
+                                  {(order.discount_amount || 0) > 0 && (
+                                    <div className="flex justify-between text-sm text-green-600">
+                                      <span>Discount</span>
+                                      <span>-₹{(order.discount_amount || 0).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                                    <span className="font-semibold">Total</span>
+                                    <span className="font-bold text-lg text-primary">₹{order.total_amount.toLocaleString()}</span>
+                                  </div>
                                 </div>
-                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
-                                  <span className="font-medium">Total</span>
-                                  <span className="font-bold text-lg">₹{order.total_amount.toLocaleString()}</span>
-                                </div>
+
+                                {/* Delivery Address */}
+                                {order.addresses && (
+                                  <div className="mt-4 bg-card rounded-lg p-4 border border-border">
+                                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                      <MapPin className="h-4 w-4" />
+                                      Delivery Address
+                                    </p>
+                                    <div className="text-sm text-muted-foreground">
+                                      <p className="font-medium text-foreground">{order.addresses.name}</p>
+                                      <p>{order.addresses.address_line_1}</p>
+                                      {order.addresses.address_line_2 && <p>{order.addresses.address_line_2}</p>}
+                                      <p>{order.addresses.city}, {order.addresses.state} - {order.addresses.pincode}</p>
+                                      <p className="mt-1">Phone: {order.addresses.phone}</p>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Print Receipt Button - Show only for paid orders */}
+                                {order.payment_status === "paid" && (
+                                  <div className="mt-4 flex justify-end">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1.5 text-xs"
+                                      onClick={() => printReceipt(order)}
+                                    >
+                                      <Printer className="h-3.5 w-3.5" />
+                                      Print E-Receipt
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             )}
 
