@@ -770,7 +770,8 @@ const AdminOrders = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0 overflow-x-auto">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 overflow-x-auto hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -901,6 +902,109 @@ const AdminOrders = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {isLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedOrders?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No orders found
+            </div>
+          ) : (
+            paginatedOrders?.map((order) => (
+              <div key={order.id} className={`p-4 space-y-3 ${selectedOrders.has(order.id) ? "bg-primary/5" : ""}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={selectedOrders.has(order.id)}
+                      onCheckedChange={() => toggleSelectOrder(order.id)}
+                    />
+                    <div>
+                      <p className="font-mono font-bold text-primary">{formatOrderNumber(order.order_number)}</p>
+                      <p className="text-xs text-muted-foreground">{format(new Date(order.created_at), "MMM d, yyyy")}</p>
+                    </div>
+                  </div>
+                  <p className="font-bold">₹{order.total_amount.toLocaleString()}</p>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  {getStatusBadge(order.status)}
+                  <Badge variant="outline" className="text-xs">{order.payment_status}</Badge>
+                </div>
+                
+                <p className="text-sm text-muted-foreground">Customer: {order.profiles?.name || "Unknown"}</p>
+                
+                {order.status === "rejected" && order.rejection_reason && (
+                  <p className="text-xs text-destructive bg-destructive/10 p-2 rounded">{order.rejection_reason}</p>
+                )}
+                
+                <div className="space-y-2">
+                  <Select
+                    value={order.status}
+                    onValueChange={(value: OrderStatus) => handleStatusChange(order, value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Update Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-1.5 text-xs"
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setViewDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    Details
+                  </Button>
+                  {order.prescriptions && order.prescriptions.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-1.5 text-xs"
+                      onClick={() => viewPrescription(order.prescriptions![0].file_url)}
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      View Rx
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => printSingleLabel(order)}
+                  >
+                    <Tag className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={() => printSingleInvoice(order)}
+                  >
+                    <Printer className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

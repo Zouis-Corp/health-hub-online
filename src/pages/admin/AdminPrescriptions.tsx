@@ -463,7 +463,8 @@ const AdminPrescriptions = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -535,6 +536,66 @@ const AdminPrescriptions = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {isLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedPrescriptions?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No prescriptions found
+            </div>
+          ) : (
+            paginatedPrescriptions?.map((prescription) => (
+              <div key={prescription.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium">{prescription.profiles?.name || "Unknown"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(prescription.created_at), "MMM d, yyyy h:mm a")}
+                    </p>
+                  </div>
+                  {getStatusBadge(prescription.status)}
+                </div>
+                
+                {prescription.order_id && (
+                  <p className="text-xs text-muted-foreground font-mono">
+                    Order: {prescription.order_id.slice(0, 8)}...
+                  </p>
+                )}
+                
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    onClick={() => {
+                      setSelectedPrescription(prescription);
+                      setViewDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    View
+                  </Button>
+                  {prescription.status === "pending" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-1.5"
+                      onClick={() => handleReview(prescription)}
+                    >
+                      <Package className="h-3.5 w-3.5" />
+                      Review
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

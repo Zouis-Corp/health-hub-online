@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, Loader2, Shield, ShieldOff } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import ExportCSV from "@/components/admin/ExportCSV";
 import Pagination from "@/components/admin/Pagination";
 import usePagination from "@/hooks/usePagination";
@@ -175,7 +176,8 @@ const AdminUsers = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0 overflow-x-auto">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 overflow-x-auto hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -269,6 +271,99 @@ const AdminUsers = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {profilesLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedProfiles?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No users found
+            </div>
+          ) : (
+            paginatedProfiles?.map((profile) => (
+              <div key={profile.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium">{profile.name || "Unnamed"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{profile.email || "No email"}</p>
+                    {profile.phone && <p className="text-xs text-muted-foreground">{profile.phone}</p>}
+                  </div>
+                  {profile.is_blocked ? (
+                    <Badge variant="destructive">Blocked</Badge>
+                  ) : (
+                    <Badge className="bg-green-100 text-green-800">Active</Badge>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {getRoleBadge(getUserRole(profile.id))}
+                  <span className="text-xs text-muted-foreground">
+                    Joined {format(new Date(profile.created_at), "MMM d, yyyy")}
+                  </span>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs">Change Role</Label>
+                  <Select
+                    value={getUserRole(profile.id)}
+                    onValueChange={(value: AppRole) => 
+                      updateRoleMutation.mutate({ userId: profile.id, role: value })
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="pharmacist">Pharmacist</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex gap-2 pt-2 border-t border-border">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    onClick={() => {
+                      setSelectedUser(profile);
+                      setViewDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    View Details
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`gap-1.5 ${profile.is_blocked ? "text-green-600 border-green-300" : "text-destructive border-destructive/50"}`}
+                    onClick={() => toggleBlockMutation.mutate({ 
+                      userId: profile.id, 
+                      isBlocked: !profile.is_blocked 
+                    })}
+                  >
+                    {profile.is_blocked ? (
+                      <>
+                        <Shield className="h-3.5 w-3.5" />
+                        Unblock
+                      </>
+                    ) : (
+                      <>
+                        <ShieldOff className="h-3.5 w-3.5" />
+                        Block
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

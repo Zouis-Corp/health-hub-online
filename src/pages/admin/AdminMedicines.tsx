@@ -381,7 +381,8 @@ const AdminMedicines = () => {
       </div>
 
       <Card className="shadow-card">
-        <CardContent className="p-0 overflow-x-auto">
+        {/* Desktop Table View */}
+        <CardContent className="p-0 overflow-x-auto hidden md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -461,6 +462,67 @@ const AdminMedicines = () => {
             </TableBody>
           </Table>
         </CardContent>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-border">
+          {isLoading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+            </div>
+          ) : paginatedMedicines?.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No medicines found
+            </div>
+          ) : (
+            paginatedMedicines?.map((medicine) => (
+              <div key={medicine.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{medicine.name}</p>
+                    <p className="text-xs text-muted-foreground">{medicine.brand || "No brand"}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-primary">₹{medicine.price}</p>
+                    {medicine.original_price && (
+                      <p className="text-xs text-muted-foreground line-through">₹{medicine.original_price}</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={medicine.stock > 10 ? "default" : medicine.stock > 0 ? "secondary" : "destructive"}>
+                    Stock: {medicine.stock}
+                  </Badge>
+                  {medicine.prescription_required && (
+                    <Badge variant="outline" className="text-orange-600 border-orange-300">Rx Required</Badge>
+                  )}
+                  <Badge variant={medicine.is_active ? "default" : "secondary"}>
+                    {medicine.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+                
+                {medicine.conditions?.name && (
+                  <p className="text-sm text-muted-foreground">Condition: {medicine.conditions.name}</p>
+                )}
+                
+                <div className="flex gap-2 pt-2 border-t border-border">
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => handleEdit(medicine)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1.5 text-destructive border-destructive/50"
+                    onClick={() => { setSelectedMedicine(medicine); setDeleteDialogOpen(true); }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
