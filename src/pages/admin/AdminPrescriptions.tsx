@@ -80,13 +80,41 @@ const AdminPrescriptions = () => {
   const { data: prescriptions, isLoading } = useQuery({
     queryKey: ["admin-prescriptions"],
     queryFn: async () => {
+      // First get all prescriptions
       const { data: prescriptionsData, error } = await supabase
         .from("prescriptions")
         .select("*, orders(id, total_amount)")
         .order("created_at", { ascending: false });
       if (error) throw error;
 
-      const userIds = [...new Set(prescriptionsData.map(p => p.user_id))];
+      // Get all order IDs from prescriptions
+      const orderIds = prescriptionsData
+        .map(p => p.order_id)
+        .filter((id): id is string => id !== null);
+
+      // Get order_items count for each order to determine which have cart items
+      let ordersWithCartItems: Set<string> = new Set();
+      if (orderIds.length > 0) {
+        const { data: orderItemsData } = await supabase
+          .from("order_items")
+          .select("order_id")
+          .in("order_id", orderIds);
+        
+        if (orderItemsData) {
+          ordersWithCartItems = new Set(orderItemsData.map(item => item.order_id));
+        }
+      }
+
+      // Filter prescriptions to only show those WITHOUT cart items (pure prescription uploads)
+      const filteredPrescriptions = prescriptionsData.filter(p => {
+        // If no order_id, show it (new prescription upload)
+        if (!p.order_id) return true;
+        // Only show if the order has NO cart items
+        return !ordersWithCartItems.has(p.order_id);
+      });
+
+      // Get user profiles
+      const userIds = [...new Set(filteredPrescriptions.map(p => p.user_id))];
       const { data: profilesData } = await supabase
         .from("profiles")
         .select("id, name")
@@ -94,7 +122,7 @@ const AdminPrescriptions = () => {
 
       const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
 
-      return prescriptionsData.map(p => ({
+      return filteredPrescriptions.map(p => ({
         ...p,
         profiles: profilesMap.get(p.user_id) || null,
       })) as Prescription[];
