@@ -353,6 +353,14 @@ const Checkout = () => {
             });
             navigate("/dashboard");
           } catch (verifyError: any) {
+            // Send payment failed notification
+            await supabase.functions.invoke("razorpay-payment", {
+              body: {
+                action: "payment-failed",
+                orderId: orderId,
+                errorMessage: verifyError.message || "Payment verification failed",
+              },
+            });
             toast({
               title: "Payment verification failed",
               description: verifyError.message,
@@ -363,6 +371,14 @@ const Checkout = () => {
         modal: {
           ondismiss: () => {
             setIsCheckoutLoading(false);
+            // Send payment cancelled notification
+            supabase.functions.invoke("razorpay-payment", {
+              body: {
+                action: "payment-failed",
+                orderId: orderId,
+                errorMessage: "Payment cancelled by user",
+              },
+            });
             toast({
               title: "Payment cancelled",
               description: "You can try again anytime.",

@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-type NotificationType = 'rx-uploaded' | 'rx-approved' | 'rx-rejected' | 'order-confirmed' | 'payment-received' | 'status-update';
+type NotificationType = 'rx-uploaded' | 'rx-approved' | 'rx-rejected' | 'order-confirmed' | 'payment-received' | 'payment-failed' | 'status-update';
 
 interface SendNotificationRequest {
   type: NotificationType;
@@ -120,6 +120,24 @@ const getEmailContent = (
         <p style="margin-top: 16px;">Thank you for choosing TabletKart!</p>
       `,
       color: '#22C55E',
+    },
+    'payment-failed': {
+      subject: 'Payment Failed - TabletKart',
+      heading: 'Payment Failed ❌',
+      message: `
+        <p>Unfortunately, the payment for your order <strong>${orderDisplay}</strong> could not be processed.</p>
+        ${productListHtml}
+        <p><strong>What you can do:</strong></p>
+        <ul style="text-align: left; display: inline-block;">
+          <li>Check your payment method and try again</li>
+          <li>Ensure sufficient balance in your account</li>
+          <li>Try a different payment method</li>
+          <li>Contact your bank if the issue persists</li>
+        </ul>
+        <p style="margin-top: 16px;">Your order is still saved - visit your dashboard to retry payment.</p>
+        <p><strong>Need help?</strong> Call us at +91 98948 18002</p>
+      `,
+      color: '#EF4444',
     },
     'status-update': {
       subject: `Order ${newStatus ? newStatus.charAt(0).toUpperCase() + newStatus.slice(1) : 'Update'} - TabletKart`,
