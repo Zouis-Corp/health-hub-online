@@ -221,7 +221,7 @@ const ContactUs = () => {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">WhatsApp</p>
                       <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {contactInfo.whatsapp}
+                        Chat with us
                       </p>
                     </div>
                   </a>
@@ -237,7 +237,7 @@ const ContactUs = () => {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Phone</p>
                       <p className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {contactInfo.phone}
+                        Call us
                       </p>
                     </div>
                   </a>
