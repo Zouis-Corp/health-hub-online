@@ -1,8 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Calendar, Stethoscope } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import doctorBg from "@/assets/doctor-background.png";
 
 const PromoBanners = () => {
+  const { data: bookingUrl } = useQuery({
+    queryKey: ["site-settings", "booking_url"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "booking_url")
+        .maybeSingle();
+      return data?.value || "https://book.tabletkart.in";
+    },
+  });
+
+  const url = bookingUrl || "https://book.tabletkart.in";
   return (
     <section className="py-6 bg-background">
       <div className="container">
@@ -57,7 +72,7 @@ const PromoBanners = () => {
                 size="sm"
                 className="bg-white text-primary hover:bg-white/90 rounded-lg font-semibold px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <a href="https://book.tabletkart.in" target="_blank" rel="noopener noreferrer">
+                <a href={url} target="_blank" rel="noopener noreferrer">
                   <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Book Now
                 </a>
@@ -68,7 +83,7 @@ const PromoBanners = () => {
                 variant="outline" 
                 className="border-white text-white hover:bg-white/10 rounded-lg font-semibold px-3 sm:px-6 text-xs sm:text-sm"
               >
-                <a href="https://book.tabletkart.in" target="_blank" rel="noopener noreferrer">
+                <a href={url} target="_blank" rel="noopener noreferrer">
                   View Services
                 </a>
               </Button>

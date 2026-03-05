@@ -1,0 +1,1 @@
+INSERT INTO public.site_settings (key, value) VALUES ('booking_url', 'https://book.tabletkart.in') ON CONFLICT DO NOTHING;

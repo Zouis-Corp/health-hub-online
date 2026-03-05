@@ -54,6 +54,20 @@ const MobileBottomNav = () => {
     },
     staleTime: 60000,
   });
+
+  const { data: bookingUrl } = useQuery({
+    queryKey: ["site-settings", "booking_url"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "booking_url")
+        .maybeSingle();
+      return data?.value || "https://book.tabletkart.in";
+    },
+    staleTime: 60000,
+  });
+
   const [isClosing, setIsClosing] = useState(false);
 
   const handleCloseClinicButton = (e: React.MouseEvent) => {
@@ -89,7 +103,7 @@ const MobileBottomNav = () => {
           }`}
         >
           <a
-            href="https://book.tabletkart.in"
+            href={bookingUrl || "https://book.tabletkart.in"}
             target="_blank"
             rel="noopener noreferrer"
             className="group block"
