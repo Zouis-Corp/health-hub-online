@@ -1,11 +1,44 @@
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, FileText, Pill, Users, DollarSign, Clock } from "lucide-react";
+import { ShoppingBag, FileText, Pill, Users, DollarSign, Clock, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
+  const queryClient = useQueryClient();
+
+  const { data: clinicButtonEnabled, isLoading: clinicLoading } = useQuery({
+    queryKey: ["site-settings", "clinic_button_enabled"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "clinic_button_enabled")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value === "true";
+    },
+  });
+
+  const toggleClinicButton = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { error } = await supabase
+        .from("site_settings")
+        .update({ value: enabled ? "true" : "false", updated_at: new Date().toISOString() })
+        .eq("key", "clinic_button_enabled");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      toast.success("Clinic button setting updated");
+    },
+    onError: () => toast.error("Failed to update setting"),
+  });
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
@@ -93,7 +126,33 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Clinic Booking Button
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="clinic-toggle" className="text-sm text-muted-foreground">
+                Show "Book Nanmai Clinic" button on mobile
+              </Label>
+              {clinicLoading ? (
+                <Skeleton className="h-6 w-11" />
+              ) : (
+                <Switch
+                  id="clinic-toggle"
+                  checked={clinicButtonEnabled ?? true}
+                  onCheckedChange={(checked) => toggleClinicButton.mutate(checked)}
+                  disabled={toggleClinicButton.isPending}
+                />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
