@@ -7,7 +7,7 @@ import discountIcon from "@/assets/discount.svg";
 const actions = [
   {
     id: 1,
-    title: "Patient Assistance Support",
+    title: "Mediches, Surgicals, Diapers",
     icon: papIcon,
     bgColor: "bg-red-50",
     textColor: "text-red-600",
