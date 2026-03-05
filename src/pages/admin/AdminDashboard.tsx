@@ -2,11 +2,76 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingBag, FileText, Pill, Users, DollarSign, Clock, Calendar } from "lucide-react";
+import { ShoppingBag, FileText, Pill, Users, DollarSign, Clock, Calendar, Link2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+
+const BookingUrlCard = () => {
+  const queryClient = useQueryClient();
+  const { data: bookingUrl, isLoading } = useQuery({
+    queryKey: ["site-settings", "booking_url"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "booking_url")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value || "https://book.tabletkart.in";
+    },
+  });
+
+  const [url, setUrl] = useState("");
+  useEffect(() => {
+    if (bookingUrl) setUrl(bookingUrl);
+  }, [bookingUrl]);
+
+  const updateUrl = useMutation({
+    mutationFn: async (newUrl: string) => {
+      const { error } = await supabase
+        .from("site_settings")
+        .update({ value: newUrl, updated_at: new Date().toISOString() })
+        .eq("key", "booking_url");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      toast.success("Booking URL updated");
+    },
+    onError: () => toast.error("Failed to update booking URL"),
+  });
+
+  return (
+    <Card className="shadow-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Link2 className="h-5 w-5 text-primary" />
+          Booking URL
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Label className="text-sm text-muted-foreground">
+          "Book Now" button redirect link
+        </Label>
+        {isLoading ? (
+          <Skeleton className="h-10 w-full" />
+        ) : (
+          <div className="flex gap-2">
+            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
+            <Button size="sm" onClick={() => updateUrl.mutate(url)} disabled={updateUrl.isPending || url === bookingUrl}>
+              Save
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -153,19 +218,7 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">
-              Recent orders and prescription updates will appear here.
-            </p>
-          </CardContent>
-        </Card>
+        <BookingUrlCard />
 
         <Card className="shadow-card">
           <CardHeader>
