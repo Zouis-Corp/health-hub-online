@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Store, Upload, ShoppingCart, User, Calendar, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { 
@@ -39,6 +41,19 @@ const MobileBottomNav = () => {
   const { totalItems } = useCart();
   const { user } = useAuth();
   const [showClinicButton, setShowClinicButton] = useState(true);
+
+  const { data: clinicEnabled } = useQuery({
+    queryKey: ["site-settings", "clinic_button_enabled"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "clinic_button_enabled")
+        .maybeSingle();
+      return data?.value === "true";
+    },
+    staleTime: 60000,
+  });
   const [isClosing, setIsClosing] = useState(false);
 
   const handleCloseClinicButton = (e: React.MouseEvent) => {
@@ -67,7 +82,7 @@ const MobileBottomNav = () => {
   return (
     <>
       {/* Floating Clinic Appointment Button - iOS Glassy Style */}
-      {showClinicButton && (
+      {showClinicButton && clinicEnabled !== false && (
         <div
           className={`fixed bottom-[72px] left-2 z-40 md:hidden transition-all duration-300 ${
             isClosing ? "opacity-0 scale-95 translate-x-[-20px]" : "opacity-100 scale-100 translate-x-0"
