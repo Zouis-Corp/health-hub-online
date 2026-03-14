@@ -88,7 +88,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">6. Limitation of Liability</h2>
+              <h2 className="text-xl font-semibold text-foreground">7. Limitation of Liability</h2>
               <p>
                 TabletKart is not liable for any indirect, incidental, or consequential damages arising 
                 from the use of our services. Our liability is limited to the amount paid for the specific 
