@@ -217,7 +217,7 @@ const AdminMedicines = () => {
     setFormData({
       name: "", slug: "", type: "medicine", condition_id: "", salt_name: "", brand: "",
       dosage: "", prescription_required: false, price: "", original_price: "",
-      stock: "0", description: "", is_active: true,
+      stock: "0", description: "", image_url: "", is_active: true,
     });
     setSelectedConditions([]);
     setSelectedMolecules([]);
