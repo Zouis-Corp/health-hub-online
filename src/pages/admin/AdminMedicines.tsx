@@ -240,6 +240,7 @@ const AdminMedicines = () => {
       original_price: medicine.original_price?.toString() || "",
       stock: medicine.stock.toString(),
       description: "",
+      image_url: (medicine as any).image_url || "",
       is_active: medicine.is_active,
     });
     
