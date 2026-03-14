@@ -273,6 +273,7 @@ const AdminMedicines = () => {
       price: parseFloat(formData.price),
       original_price: formData.original_price ? parseFloat(formData.original_price) : null,
       stock: parseInt(formData.stock),
+      image_url: formData.image_url || null,
       is_active: formData.is_active,
     };
     
