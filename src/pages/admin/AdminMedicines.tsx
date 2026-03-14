@@ -106,6 +106,7 @@ const AdminMedicines = () => {
     original_price: "",
     stock: "0",
     description: "",
+    image_url: "",
     is_active: true,
   });
 
@@ -216,7 +217,7 @@ const AdminMedicines = () => {
     setFormData({
       name: "", slug: "", type: "medicine", condition_id: "", salt_name: "", brand: "",
       dosage: "", prescription_required: false, price: "", original_price: "",
-      stock: "0", description: "", is_active: true,
+      stock: "0", description: "", image_url: "", is_active: true,
     });
     setSelectedConditions([]);
     setSelectedMolecules([]);
@@ -239,6 +240,7 @@ const AdminMedicines = () => {
       original_price: medicine.original_price?.toString() || "",
       stock: medicine.stock.toString(),
       description: "",
+      image_url: (medicine as any).image_url || "",
       is_active: medicine.is_active,
     });
     
@@ -271,6 +273,7 @@ const AdminMedicines = () => {
       price: parseFloat(formData.price),
       original_price: formData.original_price ? parseFloat(formData.original_price) : null,
       stock: parseInt(formData.stock),
+      image_url: formData.image_url || null,
       is_active: formData.is_active,
     };
     
@@ -438,6 +441,20 @@ const AdminMedicines = () => {
                     placeholder="For discounts"
                   />
                 </div>
+              </div>
+
+              {/* Image URL */}
+              <div className="space-y-2">
+                <Label htmlFor="image_url">Product Image URL</Label>
+                <Input
+                  id="image_url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {formData.image_url && (
+                  <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-contain rounded border" />
+                )}
               </div>
 
               {/* Multi-select: Conditions */}
