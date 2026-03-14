@@ -25,7 +25,15 @@ const TermsConditions = () => {
             </p>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">1. Acceptance of Terms</h2>
+              <h2 className="text-xl font-semibold text-foreground">1. Business Information</h2>
+              <p>
+                TabletKart is a trade name operated by <strong>Nanmai Pharmacy B</strong>. All references to 
+                "TabletKart," "we," "us," or "our" in these Terms and Conditions refer to Nanmai Pharmacy B.
+              </p>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">2. Acceptance of Terms</h2>
               <p>
                 By accessing and using TabletKart's website and services, you agree to be bound by these 
                 Terms and Conditions. If you do not agree to these terms, please do not use our services.
