@@ -97,7 +97,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">7. Contact Us</h2>
+              <h2 className="text-xl font-semibold text-foreground">8. Contact Us</h2>
               <p>
                 For questions about these Terms and Conditions, contact us at:
               </p>
