@@ -41,7 +41,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">2. Prescription Requirements</h2>
+              <h2 className="text-xl font-semibold text-foreground">3. Prescription Requirements</h2>
               <p>
                 Certain medicines require a valid prescription from a licensed medical practitioner. 
                 You must upload a valid prescription before ordering prescription medicines. Our licensed 
