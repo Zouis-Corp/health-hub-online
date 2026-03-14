@@ -25,7 +25,15 @@ const TermsConditions = () => {
             </p>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">1. Acceptance of Terms</h2>
+              <h2 className="text-xl font-semibold text-foreground">1. Business Information</h2>
+              <p>
+                TabletKart is a trade name operated by <strong>Nanmai Pharmacy B</strong>. All references to 
+                "TabletKart," "we," "us," or "our" in these Terms and Conditions refer to Nanmai Pharmacy B.
+              </p>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">2. Acceptance of Terms</h2>
               <p>
                 By accessing and using TabletKart's website and services, you agree to be bound by these 
                 Terms and Conditions. If you do not agree to these terms, please do not use our services.
@@ -33,7 +41,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">2. Prescription Requirements</h2>
+              <h2 className="text-xl font-semibold text-foreground">3. Prescription Requirements</h2>
               <p>
                 Certain medicines require a valid prescription from a licensed medical practitioner. 
                 You must upload a valid prescription before ordering prescription medicines. Our licensed 
@@ -48,7 +56,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">3. Orders and Payment</h2>
+              <h2 className="text-xl font-semibold text-foreground">4. Orders and Payment</h2>
               <p>
                 All orders are subject to availability and confirmation. We reserve the right to refuse 
                 or cancel orders for any reason, including pricing errors or suspected fraud.
@@ -61,7 +69,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">4. Delivery</h2>
+              <h2 className="text-xl font-semibold text-foreground">5. Delivery</h2>
               <p>
                 We strive to deliver your orders within the estimated timeframe. However, delivery times 
                 may vary based on location, product availability, and other factors beyond our control.
@@ -69,7 +77,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">5. User Responsibilities</h2>
+              <h2 className="text-xl font-semibold text-foreground">6. User Responsibilities</h2>
               <p>You agree to:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Provide accurate and complete information</li>
@@ -80,7 +88,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">6. Limitation of Liability</h2>
+              <h2 className="text-xl font-semibold text-foreground">7. Limitation of Liability</h2>
               <p>
                 TabletKart is not liable for any indirect, incidental, or consequential damages arising 
                 from the use of our services. Our liability is limited to the amount paid for the specific 
@@ -89,7 +97,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">7. Contact Us</h2>
+              <h2 className="text-xl font-semibold text-foreground">8. Contact Us</h2>
               <p>
                 For questions about these Terms and Conditions, contact us at:
               </p>
