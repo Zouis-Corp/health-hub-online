@@ -106,6 +106,7 @@ const AdminMedicines = () => {
     original_price: "",
     stock: "0",
     description: "",
+    image_url: "",
     is_active: true,
   });
 
