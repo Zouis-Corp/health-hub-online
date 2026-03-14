@@ -77,7 +77,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">5. User Responsibilities</h2>
+              <h2 className="text-xl font-semibold text-foreground">6. User Responsibilities</h2>
               <p>You agree to:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Provide accurate and complete information</li>
