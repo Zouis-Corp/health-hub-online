@@ -56,7 +56,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">3. Orders and Payment</h2>
+              <h2 className="text-xl font-semibold text-foreground">4. Orders and Payment</h2>
               <p>
                 All orders are subject to availability and confirmation. We reserve the right to refuse 
                 or cancel orders for any reason, including pricing errors or suspected fraud.
