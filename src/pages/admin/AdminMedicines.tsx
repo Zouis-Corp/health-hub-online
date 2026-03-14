@@ -443,6 +443,20 @@ const AdminMedicines = () => {
                 </div>
               </div>
 
+              {/* Image URL */}
+              <div className="space-y-2">
+                <Label htmlFor="image_url">Product Image URL</Label>
+                <Input
+                  id="image_url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {formData.image_url && (
+                  <img src={formData.image_url} alt="Preview" className="h-20 w-20 object-contain rounded border" />
+                )}
+              </div>
+
               {/* Multi-select: Conditions */}
               <div className="space-y-2">
                 <Label>Conditions (Multi-select)</Label>
