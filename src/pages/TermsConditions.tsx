@@ -69,7 +69,7 @@ const TermsConditions = () => {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-foreground">4. Delivery</h2>
+              <h2 className="text-xl font-semibold text-foreground">5. Delivery</h2>
               <p>
                 We strive to deliver your orders within the estimated timeframe. However, delivery times 
                 may vary based on location, product availability, and other factors beyond our control.
